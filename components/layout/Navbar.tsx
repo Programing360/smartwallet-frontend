@@ -12,7 +12,6 @@ import {
   PlusCircle,
   PieChart,
   Wallet,
-  User,
   Settings,
   UserCircle,
 } from "lucide-react";
@@ -70,9 +69,13 @@ export default function Navbar() {
   }, [isProfileDropdownOpen, closeDropdown]);
 
   useEffect(() => {
-    closeDropdown();
-    closeMobileMenu();
-  }, [pathname, closeDropdown, closeMobileMenu]);
+    const handlePopState = () => {
+      closeDropdown();
+      closeMobileMenu();
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [closeDropdown, closeMobileMenu]);
 
   const handleLogout = async () => {
     closeDropdown();

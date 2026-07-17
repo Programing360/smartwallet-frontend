@@ -45,7 +45,7 @@ export default function HowItWorks() {
         <div className="relative mt-16">
           <div className="absolute left-1/2 top-0 hidden h-full w-px -translate-x-1/2 bg-gradient-to-b from-indigo-500 to-purple-500 lg:block" />
           <div className="grid gap-12 lg:grid-cols-4">
-            {steps.map((step, index) => (
+            {steps.map((step) => (
               <div key={step.step} className="relative text-center">
                 <div className="relative z-10 mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg shadow-indigo-500/25">
                   <step.icon size={28} />

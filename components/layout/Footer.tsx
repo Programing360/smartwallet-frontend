@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Wallet, Github, Twitter, Linkedin, Mail } from "lucide-react";
+import { Wallet, Globe, MessageSquare, ExternalLink, Mail } from "lucide-react";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -34,9 +34,9 @@ export default function Footer() {
   };
 
   const socialLinks = [
-    { name: "GitHub", href: "https://github.com", icon: <Github size={20} /> },
-    { name: "Twitter", href: "https://twitter.com", icon: <Twitter size={20} /> },
-    { name: "LinkedIn", href: "https://linkedin.com", icon: <Linkedin size={20} /> },
+    { name: "GitHub", href: "https://github.com", icon: <Globe size={20} /> },
+    { name: "Twitter", href: "https://twitter.com", icon: <MessageSquare size={20} /> },
+    { name: "LinkedIn", href: "https://linkedin.com", icon: <ExternalLink size={20} /> },
     { name: "Email", href: "mailto:hello@smartwallet.ai", icon: <Mail size={20} /> },
   ];
 
@@ -100,7 +100,7 @@ export default function Footer() {
         <div className="border-t border-slate-200 py-6 dark:border-slate-800">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              &copy; {currentYear} SmartWallet AI. All rights reserved.
+              &copy {currentYear} SmartWallet AI. All rights reserved.
             </p>
             <p className="text-sm text-slate-400 dark:text-slate-500">
               Built with AI for smarter financial decisions.

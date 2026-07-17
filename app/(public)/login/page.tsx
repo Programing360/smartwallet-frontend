@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
-import { Button, Input, Alert } from "@heroui/react";
 import { signIn } from "@/app/lib/auth-client";
 
 export default function LoginPage() {
@@ -59,48 +58,61 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <Alert color="danger" className="mt-4">
-              <AlertCircle size={16} />
+            <div className="mt-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-900/20 dark:text-red-400">
+              <AlertCircle size={16} className="flex-shrink-0" />
               {error}
-            </Alert>
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <Input
-              type="email"
-              label="Email"
-              placeholder="you@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              startContent={<Mail size={18} className="text-slate-400" />}
-              isRequired
-            />
-            <Input
-              type={showPassword ? "text" : "password"}
-              label="Password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              startContent={<Lock size={18} className="text-slate-400" />}
-              endContent={
+            <div>
+              <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Email
+              </label>
+              <div className="relative">
+                <Mail size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500"
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Password
+              </label>
+              <div className="relative">
+                <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full rounded-xl border border-slate-300 bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-colors focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-white dark:placeholder-slate-500"
+                />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
-              }
-              isRequired
-            />
-            <Button
+              </div>
+            </div>
+            <button
               type="submit"
-              color="primary"
-              className="w-full"
-              isLoading={isLoading}
+              disabled={isLoading}
+              className="w-full rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
             >
-              Sign In
-            </Button>
+              {isLoading ? "Signing in..." : "Sign In"}
+            </button>
           </form>
 
           <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
