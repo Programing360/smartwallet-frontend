@@ -29,6 +29,7 @@ import {
   type Transaction,
   type TransactionCategory,
 } from "@/store/api/transactionApi";
+import { formatCurrency } from "@/lib/formatters";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -119,14 +120,6 @@ function formatDate(iso: string): string {
     month: "short",
     year: "numeric",
   });
-}
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(Math.abs(amount));
 }
 
 /* ------------------------------------------------------------------ */
@@ -266,7 +259,7 @@ function CategoryCell({
     setOpen(false);
     setStatus("saving");
     try {
-      await updateCategory({ id: transaction.id, category: newCat }).unwrap();
+      await updateCategory({ id: transaction._id, category: newCat }).unwrap();
       setStatus("saved");
       onSaved();
       setTimeout(() => setStatus("idle"), 1000);
@@ -499,13 +492,13 @@ export default function ManageTransactionsPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const allOnPageSelected =
-    transactions.length > 0 && transactions.every((t) => selected.has(t.id));
+    transactions.length > 0 && transactions.every((t) => selected.has(t._id));
 
   const toggleAll = () => {
     if (allOnPageSelected) {
       setSelected(new Set());
     } else {
-      setSelected(new Set(transactions.map((t) => t.id)));
+      setSelected(new Set(transactions.map((t) => t._id)));
     }
   };
 
@@ -526,10 +519,10 @@ export default function ManageTransactionsPage() {
   const handleSingleDelete = async () => {
     if (!deleteTarget) return;
     try {
-      await deleteTransaction(deleteTarget.id).unwrap();
+      await deleteTransaction(deleteTarget._id).unwrap();
       setSelected((prev) => {
         const next = new Set(prev);
-        next.delete(deleteTarget.id);
+        next.delete(deleteTarget._id);
         return next;
       });
       setDeleteTarget(null);
@@ -766,7 +759,7 @@ export default function ManageTransactionsPage() {
                           CATEGORY_COLORS[t.category] ?? CATEGORY_COLORS.other;
                         return (
                           <motion.tr
-                            key={t.id}
+                            key={t._id}
                             layout
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -777,8 +770,8 @@ export default function ManageTransactionsPage() {
                             <td className="px-4 py-3">
                               <input
                                 type="checkbox"
-                                checked={selected.has(t.id)}
-                                onChange={() => toggleOne(t.id)}
+                                checked={selected.has(t._id)}
+                                onChange={() => toggleOne(t._id)}
                                 className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600"
                               />
                             </td>
@@ -810,7 +803,7 @@ export default function ManageTransactionsPage() {
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-1">
                                 <Link
-                                  href={`/transactions/${t.id}`}
+                                  href={`/transactions/${t._id}`}
                                   className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
                                   title="View"
                                 >
@@ -843,7 +836,7 @@ export default function ManageTransactionsPage() {
                       CATEGORY_COLORS[t.category] ?? CATEGORY_COLORS.other;
                     return (
                       <motion.div
-                        key={t.id}
+                        key={t._id}
                         layout
                         initial={{ opacity: 0, y: 8 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -854,8 +847,8 @@ export default function ManageTransactionsPage() {
                         <div className="flex items-start gap-3">
                           <input
                             type="checkbox"
-                            checked={selected.has(t.id)}
-                            onChange={() => toggleOne(t.id)}
+                            checked={selected.has(t._id)}
+                            onChange={() => toggleOne(t._id)}
                             className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600"
                           />
                           <div className="min-w-0 flex-1">
@@ -897,7 +890,7 @@ export default function ManageTransactionsPage() {
                             {/* actions */}
                             <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
                               <Link
-                                href={`/transactions/${t.id}`}
+                                href={`/transactions/${t._id}`}
                                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
                               >
                                 <Eye size={14} />

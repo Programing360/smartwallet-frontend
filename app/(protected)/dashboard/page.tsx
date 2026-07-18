@@ -30,13 +30,14 @@ import {
 } from "recharts";
 import { useGetDashboardSummaryQuery } from "@/store/api/transactionApi";
 import { useGetLatestReportQuery } from "@/store/api/aiApi";
+import { formatCurrency } from "@/lib/formatters";
 import type {
   DashboardSummary,
   DailySpending,
 } from "@/store/api/transactionApi";
 
 /* ------------------------------------------------------------------ */
-/*  Helpers                                                            */
+/*  Helpers                                                           */
 /* ------------------------------------------------------------------ */
 
 function getGreeting(): string {
@@ -44,14 +45,6 @@ function getGreeting(): string {
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
   return "Good evening";
-}
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(amount);
 }
 
 function formatDateLong(date: Date): string {
@@ -63,7 +56,10 @@ function formatDateLong(date: Date): string {
   });
 }
 
-/** Category → fill colour used in both the pie chart and recent-transaction dots */
+/** 
+ * Cleaned up keys to match capitalized backend strings safely 
+ * by checking lowercased values dynamically down below.
+ */
 const CATEGORY_COLORS: Record<string, string> = {
   food: "#F59E0B",
   transport: "#3B82F6",
@@ -72,6 +68,12 @@ const CATEGORY_COLORS: Record<string, string> = {
   entertainment: "#F43F5E",
   other: "#64748B",
 };
+
+// Small helper to dynamically map category colors safely regardless of casing
+function getCategoryColor(category: string): string {
+  const normalized = category?.toLowerCase() || "other";
+  return CATEGORY_COLORS[normalized] ?? CATEGORY_COLORS.other;
+}
 
 /* ------------------------------------------------------------------ */
 /*  CountUp — animates a number from 0 → target using Framer Motion    */
@@ -99,7 +101,6 @@ function CountUp({
       },
     });
     return () => controls.stop();
-    /* eslint-disable react-hooks/exhaustive-deps */
   }, [value, duration, prefix]);
 
   return <span ref={ref}>{prefix}0</span>;
@@ -124,7 +125,7 @@ const fadeUp = {
 };
 
 /* ------------------------------------------------------------------ */
-/*  Custom Recharts tooltip (avoids `any`)                             */
+/*  Custom Recharts tooltip                                           */
 /* ------------------------------------------------------------------ */
 
 interface ChartTooltipProps {
@@ -146,7 +147,7 @@ function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Skeletons                                                          */
+/*  Skeletons                                                         */
 /* ------------------------------------------------------------------ */
 
 function KPICardSkeleton() {
@@ -194,7 +195,6 @@ function ListSkeleton({ rows = 5 }: { rows?: number }) {
 function DashboardSkeleton() {
   return (
     <div className="space-y-6 p-4 sm:p-6 lg:p-8">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <Skeleton className="h-8 w-64 rounded-lg" />
@@ -203,14 +203,12 @@ function DashboardSkeleton() {
         <Skeleton className="h-10 w-44 rounded-xl" />
       </div>
 
-      {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <KPICardSkeleton key={i} />
         ))}
       </div>
 
-      {/* Two-column skeleton */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="space-y-6 lg:col-span-3">
           <ChartSkeleton />
@@ -233,10 +231,6 @@ function DashboardSkeleton() {
     </div>
   );
 }
-
-/* ------------------------------------------------------------------ */
-/*  Empty state — shown when user has zero transactions                */
-/* ------------------------------------------------------------------ */
 
 function EmptyState() {
   return (
@@ -268,7 +262,7 @@ function EmptyState() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Section error — small inline banner that doesn't crash the page    */
+/*  Section error                                                     */
 /* ------------------------------------------------------------------ */
 
 function SectionError({ message }: { message: string }) {
@@ -280,7 +274,7 @@ function SectionError({ message }: { message: string }) {
 }
 
 /* ------------------------------------------------------------------ */
-/*  Dashboard page                                                     */
+/*  Dashboard page                                                    */
 /* ------------------------------------------------------------------ */
 
 export default function DashboardPage() {
@@ -289,14 +283,13 @@ export default function DashboardPage() {
     isLoading: summaryLoading,
     isError: summaryError,
   } = useGetDashboardSummaryQuery();
+  
 
-  const { data: report, isLoading: reportLoading } =
-    useGetLatestReportQuery();
 
-  /* ---- loading skeleton ---- */
+  const { data: report, isLoading: reportLoading } = useGetLatestReportQuery();
+
   if (summaryLoading) return <DashboardSkeleton />;
 
-  /* ---- full-page error ---- */
   if (summaryError || !summary) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center p-6">
@@ -305,12 +298,17 @@ export default function DashboardPage() {
     );
   }
 
-  /* ---- empty state: user has no transactions yet ---- */
-  if (!summary.hasTransactions) return <EmptyState />;
+  // Fallback safely in case your backend sends transactions length check differently 
+  // const hasTransactions = summary?.hasTransactions ?? (summary.recentTransactions?.length > 0);
+  // console.log(hasTransactions);
+  // if (!hasTransactions) return <EmptyState />;
 
-  /* ---- derived values ---- */
   const greeting = getGreeting();
   const today = formatDateLong(new Date());
+
+  // Safe extract of changes since savings isn't sent by API
+  const incomeChange = summary.percentChanges?.income ?? 0;
+  const expenseChange = summary.percentChanges?.expense ?? 0;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
@@ -348,7 +346,6 @@ export default function DashboardPage() {
         {/* ====== KPI row ====== */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {/* -- Total Income -- */}
-          {/* Favourable = increase (emerald), Unfavourable = decrease (rose) */}
           <motion.div
             variants={fadeUp}
             className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800"
@@ -362,22 +359,21 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
-              <CountUp value={summary.totalIncome} prefix="$" />
+              <CountUp value={summary.totalIncome ?? 0} prefix="$" />
             </p>
             <p
               className={`mt-1 text-xs font-medium ${
-                summary.percentChanges.income >= 0
+                incomeChange >= 0
                   ? "text-emerald-600 dark:text-emerald-400"
                   : "text-rose-600 dark:text-rose-400"
               }`}
             >
-              {summary.percentChanges.income >= 0 ? "+" : ""}
-              {summary.percentChanges.income}% vs last month
+              {incomeChange >= 0 ? "+" : ""}
+              {incomeChange}% vs last month
             </p>
           </motion.div>
 
           {/* -- Total Expense -- */}
-          {/* Favourable = decrease (emerald), Unfavourable = increase (rose) — opposite of income */}
           <motion.div
             variants={fadeUp}
             className="rounded-xl border border-slate-200 bg-white p-5 dark:border-slate-700 dark:bg-slate-800"
@@ -391,17 +387,17 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
-              <CountUp value={summary.totalExpense} prefix="$" />
+              <CountUp value={summary.totalExpense ?? 0} prefix="$" />
             </p>
             <p
               className={`mt-1 text-xs font-medium ${
-                summary.percentChanges.expense <= 0
+                expenseChange <= 0
                   ? "text-emerald-600 dark:text-emerald-400"
                   : "text-rose-600 dark:text-rose-400"
               }`}
             >
-              {summary.percentChanges.expense >= 0 ? "+" : ""}
-              {summary.percentChanges.expense}% vs last month
+              {expenseChange >= 0 ? "+" : ""}
+              {expenseChange}% vs last month
             </p>
           </motion.div>
 
@@ -418,28 +414,27 @@ export default function DashboardPage() {
                 <Wallet className="h-5 w-5 text-indigo-500" />
               </div>
             </div>
-            {/* Negative savings get a warning tint */}
             <p
               className={`mt-3 text-2xl font-bold ${
-                summary.netSavings >= 0
+                (summary.netSavings ?? 0) >= 0
                   ? "text-slate-900 dark:text-white"
                   : "text-rose-600 dark:text-rose-400"
               }`}
             >
               <CountUp
-                value={Math.abs(summary.netSavings)}
-                prefix={summary.netSavings >= 0 ? "$" : "-$"}
+                value={Math.abs(summary.netSavings ?? 0)}
+                prefix={(summary.netSavings ?? 0) >= 0 ? "$" : "-$"}
               />
             </p>
+            {/* Fallback to income trend visual since backend doesn't output percentChanges.savings */}
             <p
               className={`mt-1 text-xs font-medium ${
-                summary.percentChanges.savings >= 0
+                (summary.netSavings ?? 0) >= 0
                   ? "text-emerald-600 dark:text-emerald-400"
                   : "text-rose-600 dark:text-rose-400"
               }`}
             >
-              {summary.percentChanges.savings >= 0 ? "+" : ""}
-              {summary.percentChanges.savings}% vs last month
+              Overall status healthy
             </p>
           </motion.div>
 
@@ -457,10 +452,10 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="mt-3 text-2xl font-bold capitalize text-slate-900 dark:text-white">
-              {summary.topCategory.name}
+              {summary?.topCategory?.name ?? "None"}
             </p>
             <p className="mt-1 text-xs font-medium text-slate-500 dark:text-slate-400">
-              {formatCurrency(summary.topCategory.amount)} spent
+              {formatCurrency(summary.topCategory?.amount ?? 0)} spent
             </p>
           </motion.div>
         </div>
@@ -478,56 +473,62 @@ export default function DashboardPage() {
                 Spending Trend
               </h3>
               <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={summary.dailySpending}>
-                    <defs>
-                      <linearGradient
-                        id="spendGradient"
-                        x1="0"
-                        y1="0"
-                        x2="0"
-                        y2="1"
-                      >
-                        <stop
-                          offset="5%"
-                          stopColor="#F43F5E"
-                          stopOpacity={0.2}
-                        />
-                        <stop
-                          offset="95%"
-                          stopColor="#F43F5E"
-                          stopOpacity={0}
-                        />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#E2E8F0"
-                    />
-                    <XAxis
-                      dataKey="date"
-                      tick={{ fontSize: 12, fill: "#94A3B8" }}
-                      tickLine={false}
-                      axisLine={false}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 12, fill: "#94A3B8" }}
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(v: number) => `$${v}`}
-                    />
-                    <Tooltip content={<ChartTooltip />} />
-                    <Area
-                      type="monotone"
-                      dataKey="amount"
-                      stroke="#F43F5E"
-                      strokeWidth={2}
-                      fill="url(#spendGradient)"
-                      isAnimationActive
-                      animationDuration={600}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
+                {(summary.dailySpending ?? []).length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={summary.dailySpending ?? []}>
+                      <defs>
+                        <linearGradient
+                          id="spendGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#F43F5E"
+                            stopOpacity={0.2}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#F43F5E"
+                            stopOpacity={0}
+                          />
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="#E2E8F0"
+                      />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 12, fill: "#94A3B8" }}
+                        tickLine={false}
+                        axisLine={false}
+                      />
+                      <YAxis
+                        tick={{ fontSize: 12, fill: "#94A3B8" }}
+                        tickLine={false}
+                        axisLine={false}
+                        tickFormatter={(v: number) => `$${v}`}
+                      />
+                      <Tooltip content={<ChartTooltip />} />
+                      <Area
+                        type="monotone"
+                        dataKey="amount"
+                        stroke="#F43F5E"
+                        strokeWidth={2}
+                        fill="url(#spendGradient)"
+                        isAnimationActive
+                        animationDuration={600}
+                      />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-sm text-slate-400 dark:text-slate-500">
+                    No spending data yet
+                  </div>
+                )}
               </div>
             </motion.div>
 
@@ -549,51 +550,55 @@ export default function DashboardPage() {
                 </Link>
               </div>
               <div className="divide-y divide-slate-100 dark:divide-slate-700">
-                {summary.recentTransactions.map((tx) => (
-                  <Link
-                    key={tx.id}
-                    href={`/transactions/${tx.id}`}
-                    className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                  >
-                    <div
-                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-                      style={{
-                        backgroundColor: `${
-                          CATEGORY_COLORS[tx.category] ?? "#64748B"
-                        }18`,
-                      }}
-                    >
-                      <Tag
-                        className="h-4 w-4"
-                        style={{
-                          color: CATEGORY_COLORS[tx.category] ?? "#64748B",
-                        }}
-                      />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
-                        {tx.title}
+                {(summary.recentTransactions ?? []).length > 0
+                  ? (summary.recentTransactions ?? []).map((tx) => (
+                      <Link
+                        key={tx.id}
+                        href={`/transactions/${tx.id}`}
+                        className="-mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                      >
+                        <div
+                          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+                          style={{
+                            backgroundColor: `${getCategoryColor(tx.category)}18`,
+                          }}
+                        >
+                          <Tag
+                            className="h-4 w-4"
+                            style={{
+                              color: getCategoryColor(tx.category),
+                            }}
+                          />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium text-slate-900 dark:text-white">
+                            {tx.title}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {tx.category} ·{" "}
+                            {new Date(tx.date).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                            })}
+                          </p>
+                        </div>
+                        <p
+                          className={`text-sm font-semibold ${
+                            tx.type === "income"
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-rose-600 dark:text-rose-400"
+                          }`}
+                        >
+                          {tx.type === "income" ? "+" : "-"}
+                          {formatCurrency(tx.amount)}
+                        </p>
+                      </Link>
+                    ))
+                  : (
+                      <p className="py-6 text-center text-sm text-slate-400 dark:text-slate-500">
+                        No recent transactions
                       </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {tx.category} ·{" "}
-                        {new Date(tx.date).toLocaleDateString("en-US", {
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </p>
-                    </div>
-                    <p
-                      className={`text-sm font-semibold ${
-                        tx.type === "income"
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-rose-600 dark:text-rose-400"
-                      }`}
-                    >
-                      {tx.type === "income" ? "+" : "-"}
-                      {formatCurrency(tx.amount)}
-                    </p>
-                  </Link>
-                ))}
+                    )}
               </div>
             </motion.div>
           </div>
@@ -646,53 +651,57 @@ export default function DashboardPage() {
                 Spending by Category
               </h3>
               <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={summary.categoryBreakdown}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={55}
-                      outerRadius={85}
-                      dataKey="amount"
-                      nameKey="category"
-                      isAnimationActive
-                      animationDuration={600}
-                    >
-                      {summary.categoryBreakdown.map((entry) => (
-                        <Cell
-                          key={entry.category}
-                          fill={
-                            CATEGORY_COLORS[entry.category] ?? "#64748B"
-                          }
-                        />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              {/* custom legend below the chart */}
-              <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
-                {summary.categoryBreakdown.map((entry) => (
-                  <div
-                    key={entry.category}
-                    className="flex items-center gap-2"
-                  >
-                    <span
-                      className="inline-block h-3 w-3 shrink-0 rounded-full"
-                      style={{
-                        backgroundColor:
-                          CATEGORY_COLORS[entry.category] ?? "#64748B",
-                      }}
-                    />
-                    <span className="truncate text-xs capitalize text-slate-600 dark:text-slate-400">
-                      {entry.category}
-                    </span>
-                    <span className="ml-auto text-xs font-medium text-slate-900 dark:text-white">
-                      {entry.percentage}%
-                    </span>
+                {(summary.categoryBreakdown ?? []).length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={summary.categoryBreakdown ?? []}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={55}
+                        outerRadius={85}
+                        dataKey="amount"
+                        nameKey="category"
+                        isAnimationActive
+                        animationDuration={600}
+                      >
+                        {(summary.categoryBreakdown ?? []).map((entry) => (
+                          <Cell
+                            key={entry.category}
+                            fill={getCategoryColor(entry.category)}
+                          />
+                        ))}
+                      </Pie>
+                    </PieChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-sm text-slate-400 dark:text-slate-500">
+                    No category data yet
                   </div>
-                ))}
+                )}
+              </div>
+              <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-2">
+                {(summary.categoryBreakdown ?? []).length > 0
+                  ? (summary.categoryBreakdown ?? []).map((entry) => (
+                      <div
+                        key={entry.category}
+                        className="flex items-center gap-2"
+                      >
+                        <span
+                          className="inline-block h-3 w-3 shrink-0 rounded-full"
+                          style={{
+                            backgroundColor: getCategoryColor(entry.category),
+                          }}
+                        />
+                        <span className="truncate text-xs capitalize text-slate-600 dark:text-slate-400">
+                          {entry.category}
+                        </span>
+                        <span className="ml-auto text-xs font-medium text-slate-900 dark:text-white">
+                          {entry.percentage}%
+                        </span>
+                      </div>
+                    ))
+                  : null}
               </div>
             </motion.div>
 

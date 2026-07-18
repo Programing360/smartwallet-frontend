@@ -26,6 +26,7 @@ import {
   type SortOption,
   type DateRange,
 } from "@/store/api/transactionApi";
+import { formatCurrency } from "@/lib/formatters";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -145,14 +146,6 @@ function formatDate(iso: string): string {
   return d.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-  }).format(Math.abs(amount));
-}
-
 /* ------------------------------------------------------------------ */
 /*  Skeleton card                                                      */
 /* ------------------------------------------------------------------ */
@@ -190,7 +183,6 @@ function TransactionCard({
   index: number;
 }) {
   const cat = CATEGORY_MAP[transaction.category] ?? CATEGORY_MAP.other;
-console.log(transaction);
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}

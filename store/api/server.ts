@@ -3,7 +3,7 @@
 import { auth } from "@/app/lib/auth";
 import { headers } from "next/headers";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_URL;
+const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000/api";
 
 export const serverAction = async (apiUrl: string, data: Record<string, unknown>) => {
   const session = await auth.api.getSession({

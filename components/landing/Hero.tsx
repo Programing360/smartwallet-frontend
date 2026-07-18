@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { ArrowRight, Sparkles, ChevronDown, Wallet, ShieldCheck, BarChart3, LineChart, Sun, Moon } from "lucide-react";
 
 interface SlideData {
@@ -128,21 +129,27 @@ export default function Hero(): React.JSX.Element {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-            <button className={`w-full sm:w-auto px-6 py-3 text-sm font-semibold text-white rounded-xl transition-colors duration-200 flex items-center justify-center gap-2 group shadow-lg ${
-              isDarkMode 
-                ? "bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 shadow-indigo-600/20" 
-                : "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-indigo-600/10"
-            }`}>
+            <Link
+              href="/register"
+              className={`w-full sm:w-auto px-6 py-3 text-sm font-semibold text-white rounded-xl transition-colors duration-200 flex items-center justify-center gap-2 group shadow-lg ${
+                isDarkMode 
+                  ? "bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 shadow-indigo-600/20" 
+                  : "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-indigo-600/10"
+              }`}
+            >
               Get Started Free
               <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
-            </button>
-            <button className={`w-full sm:w-auto px-6 py-3 text-sm font-semibold border rounded-xl transition-all duration-200 backdrop-blur-md flex items-center justify-center gap-2 ${
-              isDarkMode 
-                ? "text-slate-300 bg-slate-900/50 hover:bg-slate-800/80 border-slate-800" 
-                : "text-slate-700 bg-white/60 hover:bg-slate-100 border-slate-200"
-            }`}>
+            </Link>
+            <Link
+              href="/login"
+              className={`w-full sm:w-auto px-6 py-3 text-sm font-semibold border rounded-xl transition-all duration-200 backdrop-blur-md flex items-center justify-center gap-2 ${
+                isDarkMode 
+                  ? "text-slate-300 bg-slate-900/50 hover:bg-slate-800/80 border-slate-800" 
+                  : "text-slate-700 bg-white/60 hover:bg-slate-100 border-slate-200"
+              }`}
+            >
               Try Demo
-            </button>
+            </Link>
           </div>
 
           <div className={`flex items-center justify-center lg:justify-start gap-2 text-xs ${

@@ -87,7 +87,7 @@ export default function Navbar() {
 
   const loggedOutLinks: { name: string; href: string; icon?: React.ReactNode }[] = [
     { name: "Home", href: "/" },
-    { name: "Features", href: "/features" },
+    { name: "Transaction", href: "/transactions" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
@@ -95,7 +95,7 @@ export default function Navbar() {
   const loggedInLinks: { name: string; href: string; icon?: React.ReactNode }[] = [
     { name: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} /> },
     { name: "Transactions", href: "/transactions", icon: <ArrowRightLeft size={18} /> },
-    { name: "Add Transaction", href: "/add-transaction", icon: <PlusCircle size={18} className="text-emerald-500" /> },
+    { name: "Add Transaction", href: "/transactions/add", icon: <PlusCircle size={18} className="text-emerald-500" /> },
     { name: "Reports", href: "/reports", icon: <PieChart size={18} /> },
   ];
 

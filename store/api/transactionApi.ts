@@ -16,6 +16,40 @@ export type TransactionCategory =
   | "entertainment"
   | "other";
 
+export type AiConfidence = "low" | "medium" | "high";
+
+export type TransactionSource = "manual" | "csv";
+
+export interface Transaction {
+  _id: string;
+  title: string;
+  amount: number;
+  type: TransactionType;
+  category: TransactionCategory;
+  aiClassified: boolean;
+  aiConfidence?: AiConfidence;
+  date: string;
+  description: string;
+}
+
+/** Full transaction model — returned by the detail endpoint */
+export interface TransactionDetail {
+  _id: string;
+  title: string;
+  description?: string;
+  fullDescription?: string;
+  amount: number;
+  type: TransactionType;
+  category: TransactionCategory;
+  aiClassified: boolean;
+  aiConfidence?: AiConfidence;
+  imageUrl?: string;
+  date: string;
+  source: TransactionSource;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CreateTransactionPayload {
   title: string;
   amount: number;
@@ -27,22 +61,13 @@ export interface CreateTransactionPayload {
   imageUrl: string;
 }
 
-export interface Transaction {
-  _id: string;
-  title: string;
-  amount: number;
-  type: TransactionType;
-  category: TransactionCategory;
-  aiTag: string;
-  date: string;
-  description: string;
-}
-
 export interface TransactionsResponse {
   transactions: Transaction[];
   total: number;
   totalPages: number;
 }
+
+
 
 export type SortOption = "newest" | "oldest" | "amount_high" | "amount_low";
 
@@ -104,7 +129,10 @@ export interface TransactionApiResponse {
   success: boolean;
   data: TransactionsResponse;
 }
-
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
 
 /* ------------------------------------------------------------------ */
 /*  API slice                                                          */
@@ -118,7 +146,6 @@ export const transactionApi = createApi({
     prepareHeaders: async (headers) => {
       if (typeof window !== "undefined") {
         const token = await getUserToken();
-        console.log(token);
         if (token) headers.set("Authorization", `Bearer ${token}`);
       }
       return headers;
@@ -145,14 +172,16 @@ export const transactionApi = createApi({
                 type: "Transaction" as const,
                 _id,
               })),
-              { type: "Transaction", _id: "LIST" },
+              { type: "Transaction", id: "LIST" },
             ]
-          : [{ type: "Transaction", _id: "LIST" }],
+          : [{ type: "Transaction", id: "LIST" }],
     }),
 
     /* ---- dashboard ---- */
     getDashboardSummary: builder.query<DashboardSummary, void>({
-      query: () => "/transactions/dashboard",
+      query: () => "/transactions/dashboard-summary",
+      transformResponse: (response: ApiResponse<DashboardSummary>) =>
+    response.data,
       providesTags: [{ type: "Transaction", id: "LIST" }],
     }),
 
@@ -203,6 +232,25 @@ export const transactionApi = createApi({
         { type: "Transaction", id: "LIST" },
       ],
     }),
+
+    /* ---- single transaction detail ---- */
+    getTransactionById: builder.query<TransactionDetail, string>({
+      query: (id) => `/transactions/${id}`,
+      transformResponse: (response: { success: boolean; data: TransactionDetail }) =>
+        response.data,
+      providesTags: (_result, _error, id) => [{ type: "Transaction", id }],
+    }),
+
+    /* ---- related transactions (same category, excluding current) ---- */
+    getRelatedTransactions: builder.query<
+      Transaction[],
+      { category: string; excludeId: string }
+    >({
+      query: ({ category, excludeId }) =>
+        `/transactions/related/${category}/${excludeId}`,
+      transformResponse: (response: { success: boolean; data: Transaction[] }) =>
+        response.data,
+    }),
   }),
 });
 
@@ -213,4 +261,6 @@ export const {
   useUpdateTransactionCategoryMutation,
   useDeleteTransactionMutation,
   useBulkDeleteTransactionsMutation,
+  useGetTransactionByIdQuery,
+  useGetRelatedTransactionsQuery,
 } = transactionApi;
