@@ -1,5 +1,4 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { getUserToken } from "./session";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -18,7 +17,7 @@ export type TransactionCategory =
 
 export type AiConfidence = "low" | "medium" | "high";
 
-export type TransactionSource = "manual" | "csv";
+export type TransactionSource = "manual" | "csv" | "pdf" | "image";
 
 export interface Transaction {
   _id: string;
@@ -145,6 +144,9 @@ export const transactionApi = createApi({
     credentials: "include",
     prepareHeaders: async (headers) => {
       if (typeof window !== "undefined") {
+        /* Dynamic import prevents server-only modules (mongodb, better-auth)
+           from being pulled into the client bundle via static import chain. */
+        const { getUserToken } = await import("./session");
         const token = await getUserToken();
         if (token) headers.set("Authorization", `Bearer ${token}`);
       }

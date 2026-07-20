@@ -14,7 +14,7 @@ interface FormErrors {
 }
 
 const DEMO_EMAIL = "demo@smartwallet.ai";
-const DEMO_PASSWORD = "demo1234";
+const DEMO_PASSWORD = "Demo123456@#";
 
 function validateFields(email: string, password: string): FormErrors {
   const errors: FormErrors = {};
@@ -35,7 +35,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDemoFilling, setIsDemoFilling] = useState(false);
-
+const route = useRouter()
   // 1. Form Submit Handler (Email & Password with Better-Auth)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,6 +85,7 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     if (isLoading || isDemoFilling) return;
     setIsLoading(true);
+    
     const toastId = toast.loading("Connecting to Google Secure Gate...");
 
     try {
@@ -92,6 +93,10 @@ export default function LoginPage() {
         provider: "google",
         callbackURL: "/dashboard",
       });
+      
+      if(result){
+        route.push('/dashboard')
+      }
 
       if (result.error) {
         setIsLoading(false);
@@ -276,7 +281,7 @@ export default function LoginPage() {
 
         {/* Register Link */}
         <p className="mt-6 text-center text-sm text-slate-500 dark:text-slate-400">
-          Don't have an account?{" "}
+          Do not have an account?{" "}
           <Link href="/register" className="font-semibold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
             Sign up
           </Link>

@@ -87,7 +87,7 @@ export default function Navbar() {
 
   const loggedOutLinks: { name: string; href: string; icon?: React.ReactNode }[] = [
     { name: "Home", href: "/" },
-    { name: "Transaction", href: "/transactions" },
+    { name: "Transaction", href: "/blog" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
@@ -107,7 +107,7 @@ export default function Navbar() {
   const displayEmail = user?.email || "";
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-black/80 font-sans">
+    <nav className=" z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-black/80 font-sans">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -177,7 +177,7 @@ export default function Navbar() {
                   {isProfileDropdownOpen && (
                     <div
                       ref={dropdownRef}
-                      className="absolute right-0 mt-2 w-72 origin-top-right overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
+                      className="absolute right-0 z-60 mt-2 w-72 origin-top-right overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900"
                     >
                       {/* User Info Header */}
                       <div className="flex items-center gap-3 border-b border-slate-100 px-5 py-4 dark:border-slate-700/60">

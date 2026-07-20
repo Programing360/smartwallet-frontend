@@ -1,49 +1,28 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const protectedPaths = [
-  "/dashboard",
-  "/transactions",
-  "/reports",
-  "/manage",
-];
+// const protectedPaths = [
+//   "/dashboard",
+//   "/transactions",
+//   "/reports",
+//   "/manage",
+// ];
 
-function isProtectedPath(pathname: string): boolean {
-  return protectedPaths.some(
-    (path) => pathname === path || pathname.startsWith(path + "/")
-  );
-}
+// import { NextResponse } from 'next/server';
+// import type { NextRequest } from 'next/server';
 
 export function proxy(request: NextRequest) {
+  // Replace this with your actual JWT/Cookie check logic
+  const token = request.cookies.get('token')?.value; 
   const { pathname } = request.nextUrl;
-
-  if (!isProtectedPath(pathname)) {
-    return NextResponse.next();
-  }
-
-  /* Better Auth stores session data in a cookie named "better-auth.session_token" */
-  const sessionCookie =
-    request.cookies.get("better-auth.session_token")?.value;
-
-  if (!sessionCookie) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+  // Protect paths starting with /items/add or /items/manage
+  if (!token && (pathname.startsWith('/dashboard/transaction') || pathname.startsWith('/transaction'))) {
+    return NextResponse.redirect(new URL('/auth/login', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico, sitemap.xml, robots.txt
-     * - public assets
-     */
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.png$).*)",
-  ],
+  matcher: ['/dashboard', '/transaction','/report', '/manage' ], // Applies middleware to all subroutes of /items
 };

@@ -13,7 +13,7 @@ const db = client.db("smart_wallet");
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, { client }),
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL,
   emailAndPassword: {
     enabled: true,
   },

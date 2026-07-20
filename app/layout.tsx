@@ -32,7 +32,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <Providers>
-          <header>
+          <header className="sticky top-0 z-50">
             <Navbar />
           </header>
           <main className="flex-1">{children}</main>
