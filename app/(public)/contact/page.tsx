@@ -296,7 +296,7 @@ export default function ContactPage() {
                       typically respond within 24 hours.
                     </p>
                     <Button
-                      variant="light"
+                      
                       onPress={resetForm}
                       className="mt-8 font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
                     >
