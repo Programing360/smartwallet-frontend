@@ -2,7 +2,22 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ArrowRight, Sparkles, ChevronDown, Wallet, ShieldCheck, BarChart3, LineChart, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import {
+  ArrowRight,
+  Sparkles,
+  ChevronDown,
+  Wallet,
+  ShieldCheck,
+  BarChart3,
+  LineChart,
+  Sun,
+  Moon,
+  StarIcon,
+} from "lucide-react";
+import Image from "next/image";
+import Imgae1 from "../../public/images.jpg";
+import Imgae2 from "../../public/images (1).jpg";
 
 interface SlideData {
   id: number;
@@ -21,7 +36,8 @@ const slideData: SlideData[] = [
     amount: "$1,240.50",
     change: "-12% from last month",
     isPositive: true,
-    insight: "AI Insight: You saved $140 this week by cutting down on dining out. Keep it up!",
+    insight:
+      "AI Insight: You saved $140 this week by cutting down on dining out. Keep it up!",
     type: "expense",
   },
   {
@@ -30,7 +46,8 @@ const slideData: SlideData[] = [
     amount: "$24,850.00",
     change: "+8.4% growth",
     isPositive: true,
-    insight: "AI Insight: Your investments are outperforming your target by 2.3% this quarter.",
+    insight:
+      "AI Insight: Your investments are outperforming your target by 2.3% this quarter.",
     type: "income",
   },
   {
@@ -39,15 +56,22 @@ const slideData: SlideData[] = [
     amount: "$4,500.00",
     change: "On track for goal",
     isPositive: true,
-    insight: "AI Insight: At this rate, you will reach your 'Emergency Fund' goal 3 weeks early.",
+    insight:
+      "AI Insight: At this rate, you will reach your 'Emergency Fund' goal 3 weeks early.",
     type: "savings",
   },
 ];
 
 export default function Hero(): React.JSX.Element {
+  const { theme } = useTheme();
   const [currentSlide, setCurrentSlide] = useState<number>(0);
-  // Set initial state to false for Light Mode by default
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+  const [mounted, setMounted] = useState(false);
+
+  const isDarkMode = mounted && theme === "dark";
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -58,16 +82,38 @@ export default function Hero(): React.JSX.Element {
   }, []);
 
   return (
-    <section className={`relative min-h-[70vh] flex flex-col justify-between items-center overflow-hidden px-4 sm:px-6 lg:px-8 py-12 md:py-16 transition-colors duration-500 font-sans ${
-      isDarkMode ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
-    }`}>
-      
+    <section
+      className={`relative min-h-[70vh] flex flex-col justify-between items-center overflow-hidden px-4 sm:px-6 lg:px-8 py-12 md:py-16 transition-colors duration-500 font-sans ${
+        isDarkMode
+          ? "bg-slate-950 text-slate-100"
+          : "bg-linear-to-br from-[#132329] to-[#15191c] text-white"
+      }`}
+    >
       {/* Background SVG Grid Pattern Layer */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.35]">
-        <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <svg
+          className="w-full h-full"
+          xmlns="http://www.w3.org/2000/svg"
+          width="100%"
+          height="100%"
+        >
           <defs>
-            <pattern id="hero-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke={isDarkMode ? "rgba(79, 70, 229, 0.15)" : "rgba(79, 70, 229, 0.08)"} strokeWidth="1" />
+            <pattern
+              id="hero-grid"
+              width="40"
+              height="40"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 40 0 L 0 0 0 40"
+                fill="none"
+                stroke={
+                  isDarkMode
+                    ? "rgba(79, 70, 229, 0.15)"
+                    : "rgba(79, 70, 229, 0.08)"
+                }
+                strokeWidth="1"
+              />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#hero-grid)" />
@@ -76,16 +122,20 @@ export default function Hero(): React.JSX.Element {
 
       {/* Ambient Radial Glass Glow Filters */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className={`absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full blur-[120px] transition-colors duration-500 ${
-          isDarkMode ? "bg-indigo-600/15" : "bg-indigo-500/10"
-        }`} />
-        <div className={`absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-80 h-80 rounded-full blur-[120px] transition-colors duration-500 ${
-          isDarkMode ? "bg-emerald-600/15" : "bg-emerald-500/10"
-        }`} />
+        <div
+          className={`absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full blur-[120px] transition-colors duration-500 ${
+            isDarkMode ? "bg-indigo-600/15" : "bg-indigo-500/10"
+          }`}
+        />
+        <div
+          className={`absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-80 h-80 rounded-full blur-[120px] transition-colors duration-500 ${
+            isDarkMode ? "bg-emerald-600/15" : "bg-emerald-500/10"
+          }`}
+        />
       </div>
 
       {/* Mode Switcher Control Top Right Corner */}
-      <div className="absolute top-4 right-4 z-30">
+      {/* <div className="absolute top-4 right-4 z-30">
         <button
           onClick={() => setIsDarkMode(!isDarkMode)}
           className={`p-2 rounded-xl border transition-all duration-300 backdrop-blur-md ${
@@ -97,71 +147,88 @@ export default function Hero(): React.JSX.Element {
         >
           {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
-      </div>
+      </div> */}
 
       <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10 my-auto">
-        
         {/* Left Side Component: Structured Content with Bottom-to-Top Keyframe Animation */}
         <div className="flex flex-col space-y-6 text-center lg:text-left animate-[slideUp_0.8s_ease-out_forwards]">
           <div>
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium border rounded-full backdrop-blur-md ${
-              isDarkMode 
-                ? "text-indigo-400 bg-indigo-500/10 border-indigo-500/20" 
-                : "text-indigo-600 bg-indigo-50 border-indigo-200"
-            }`}>
-              <Sparkles className="w-3.5 h-3.5" /> Powered by Smart AI
+            <span
+              className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium border rounded-full backdrop-blur-md ${
+                isDarkMode
+                  ? "text-indigo-400 bg-indigo-500/10 border-indigo-500/20"
+                  : "text-indigo-600 bg-indigo-50 border-indigo-200"
+              }`}
+            >
+              <StarIcon className="text-amber-400" size={16} /> Rated 4.8 on App
+              Stores
             </span>
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-            Track Your Money, <br />
-            <span className={`bg-clip-text text-transparent bg-gradient-to-r ${
-              isDarkMode ? "from-indigo-400 to-emerald-400" : "from-indigo-600 to-emerald-500"
-            }`}>
+            <span data-aos="fade-up">Track Your Money,</span> <br />
+            <span
+              data-aos="fade-up"
+              className={`bg-clip-text text-transparent bg-gradient-to-r ${
+                isDarkMode
+                  ? "from-indigo-400 to-emerald-400"
+                  : "from-indigo-600 to-emerald-500"
+              }`}
+            >
               Let AI Do the Thinking
             </span>
           </h1>
 
-          <p className={`max-w-xl mx-auto lg:mx-0 text-base sm:text-lg leading-relaxed ${
-            isDarkMode ? "text-slate-400" : "text-slate-600"
-          }`}>
-            Connect your accounts securely. Experience automatic transaction categorization, instant budgeting limits, and personalized wealth-building insights driven by artificial intelligence.
+          <p
+            data-aos="fade-up"
+            className={`max-w-xl mx-auto lg:mx-0 text-base sm:text-lg leading-relaxed ${
+              isDarkMode ? "text-slate-400" : "text-slate-600"
+            }`}
+          >
+            Connect your accounts securely. Experience automatic transaction
+            categorization, instant budgeting limits, and personalized
+            wealth-building insights driven by artificial intelligence.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
             <Link
+              data-aos="flip-up"
               href="/register"
-              className={`w-full sm:w-auto px-6 py-3 text-sm font-semibold text-white rounded-xl transition-colors duration-200 flex items-center justify-center gap-2 group shadow-lg ${
-                isDarkMode 
-                  ? "bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 shadow-indigo-600/20" 
-                  : "bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 shadow-indigo-600/10"
+              className={`w-full sm:w-auto px-6 py-4 text-sm font-semibold text-white rounded-2xl transition-all duration-700 ease-in-out flex items-center justify-center gap-2 group hover:scale-110 shadow-lg hover:shadow-[0_10px_25px_-5px_#1c2125] ${
+                isDarkMode
+                  ? "bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 shadow-indigo-600/20"
+                  : "bg-[#00bb7f] hover:bg-[#00a0aa] active:bg-indigo-800 shadow-indigo-600/10"
               }`}
             >
               Get Started Free
-              <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-0.5" />
+              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
+
             <Link
+              data-aos="flip-up"
               href="/login"
-              className={`w-full sm:w-auto px-6 py-3 text-sm font-semibold border rounded-xl transition-all duration-200 backdrop-blur-md flex items-center justify-center gap-2 ${
-                isDarkMode 
-                  ? "text-slate-300 bg-slate-900/50 hover:bg-slate-800/80 border-slate-800" 
-                  : "text-slate-700 bg-white/60 hover:bg-slate-100 border-slate-200"
+              className={`w-full sm:w-auto px-6 py-4 text-sm font-semibold rounded-2xl transition-all duration-700 ease-in-out backdrop-blur-md flex items-center justify-center gap-2 hover:scale-110 shadow-xl hover:shadow-[0_10px_25px_-5px_#1c2125] ${
+                isDarkMode
+                  ? "text-slate-300 bg-slate-900/50 hover:bg-slate-800/80 border-slate-800"
+                  : "text-slate-700 bg-white/60 hover:bg-slate-100  hover:shadow-[0_10px_25px_-5px_#1c2125]"
               }`}
             >
               Try Demo
             </Link>
           </div>
 
-          <div className={`flex items-center justify-center lg:justify-start gap-2 text-xs ${
-            isDarkMode ? "text-slate-500" : "text-slate-400"
-          }`}>
+          <div
+            className={`flex items-center justify-center lg:justify-start gap-2 text-xs ${
+              isDarkMode ? "text-slate-500" : "text-slate-400"
+            }`}
+          >
             <ShieldCheck className="w-4 h-4 text-emerald-500" />
             <span>No credit card required. Bank-grade 256-bit security.</span>
           </div>
         </div>
 
         {/* Right Side Component: Infinite Slider Module with 6s Transition Loop & Deep Glass Effects */}
-        <div className="relative w-full max-w-md mx-auto lg:max-w-none flex justify-center items-center h-[340px]">
+        {/* <div className="relative w-full max-w-md mx-auto lg:max-w-none flex justify-center items-center h-[340px]">
           {slideData.map((slide, index) => {
             const isActive = index === currentSlide;
             return (
@@ -173,7 +240,7 @@ export default function Hero(): React.JSX.Element {
                     : "opacity-0 scale-95 translate-x-8 pointer-events-none z-10"
                 }`}
               >
-                {/* Primary Glass Panel Card Interface */}
+               
                 <div className={`border backdrop-blur-xl rounded-xl p-6 shadow-2xl transition-colors duration-500 ${
                   isDarkMode 
                     ? "bg-slate-900/40 border-slate-800/80 shadow-black/40" 
@@ -206,7 +273,7 @@ export default function Hero(): React.JSX.Element {
                     </span>
                   </div>
 
-                  {/* Programmatic Graphic Visual Chart Workspace */}
+               
                   <div className="space-y-3 pt-2">
                     <div className={`flex justify-between text-xs font-mono ${
                       isDarkMode ? "text-slate-500" : "text-slate-400"
@@ -229,7 +296,7 @@ export default function Hero(): React.JSX.Element {
                   </div>
                 </div>
 
-                {/* Overlapping Floating Sub-Card for Deep Layering Composition */}
+         
                 <div className={`absolute -bottom-6 -right-4 sm:-right-6 max-w-[280px] border backdrop-blur-xl rounded-xl p-4 shadow-xl transform transition-all duration-1000 delay-300 ${
                   isActive ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
                 } ${
@@ -253,8 +320,6 @@ export default function Hero(): React.JSX.Element {
               </div>
             );
           })}
-
-          {/* Slider Pagination Controls */}
           <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2">
             {slideData.map((_, idx) => (
               <button
@@ -269,16 +334,34 @@ export default function Hero(): React.JSX.Element {
               />
             ))}
           </div>
-        </div>
+        </div> */}
 
+        <div
+          data-aos="fade-left"
+          className="relative w-full max-w-md mx-auto lg:max-w-none flex justify-center items-center h-[340px]"
+        >
+          <Image
+            src={Imgae2}
+            alt="smartwallet image"
+            width={400}
+            height={400}
+            className="w-4xl rounded-2xl"
+          ></Image>
+        </div>
       </div>
 
       {/* Bottom Structural Navigation Link Feature */}
       <div className="w-full flex justify-center pt-8 z-10">
-        <div className={`flex flex-col items-center gap-1 transition-colors duration-200 cursor-pointer group ${
-          isDarkMode ? "text-slate-600 hover:text-slate-400" : "text-slate-400 hover:text-slate-600"
-        }`}>
-          <span className="text-[10px] font-semibold tracking-widest uppercase opacity-80">Explore Platform</span>
+        <div
+          className={`flex flex-col items-center gap-1 transition-colors duration-200 cursor-pointer group ${
+            isDarkMode
+              ? "text-slate-600 hover:text-slate-400"
+              : "text-slate-400 hover:text-slate-600"
+          }`}
+        >
+          <span className="text-[10px] font-semibold tracking-widest uppercase opacity-80">
+            Explore Platform
+          </span>
           <ChevronDown className="w-4 h-4 animate-bounce group-hover:translate-y-0.5 transition-transform" />
         </div>
       </div>

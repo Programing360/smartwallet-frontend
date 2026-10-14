@@ -2,12 +2,7 @@
 
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  Quote,
-  Star,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import { Quote, Star, ChevronLeft, ChevronRight } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -33,7 +28,8 @@ const testimonials: Testimonial[] = [
     text: "The auto-categorization feature alone saved me hours every month. I used to spend weekends sorting receipts — now SmartWallet AI does it the moment I import my CSV export.",
     rating: 5,
     initials: "SJ",
-    color: "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400",
+    color:
+      "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-400",
   },
   {
     name: "Michael Chen",
@@ -41,7 +37,8 @@ const testimonials: Testimonial[] = [
     text: "As a freelancer with irregular income, having AI-powered budget tracking that actually learns my spending patterns has been a game-changer for tax planning.",
     rating: 5,
     initials: "MC",
-    color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400",
+    color:
+      "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-400",
   },
   {
     name: "Priya Sharma",
@@ -49,7 +46,8 @@ const testimonials: Testimonial[] = [
     text: "I imported three years of bank transactions in one go and the AI nailed almost every category on the first pass. The insights dashboard is genuinely useful, not just pretty charts.",
     rating: 5,
     initials: "PS",
-    color: "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400",
+    color:
+      "bg-amber-100 text-amber-600 dark:bg-amber-900/40 dark:text-amber-400",
   },
   {
     name: "David Okafor",
@@ -73,7 +71,8 @@ const testimonials: Testimonial[] = [
     text: "I used to juggle spreadsheets for personal and business finances. Now everything lives in SmartWallet AI — CSV imports handle my card statements, and the AI splits personal from business automatically.",
     rating: 5,
     initials: "JW",
-    color: "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400",
+    color:
+      "bg-violet-100 text-violet-600 dark:bg-violet-900/40 dark:text-violet-400",
   },
 ];
 
@@ -81,8 +80,8 @@ const testimonials: Testimonial[] = [
 /*  Constants                                                          */
 /* ------------------------------------------------------------------ */
 
-const CARD_WIDTH = 380;   // px – matches the min-w on each card
-const CARD_GAP  = 24;     // px – matches gap-6
+const CARD_WIDTH = 380; // px – matches the min-w on each card
+const CARD_GAP = 24; // px – matches gap-6
 const SCROLL_STEP = CARD_WIDTH + CARD_GAP;
 
 /* ------------------------------------------------------------------ */
@@ -93,11 +92,7 @@ function Stars({ count }: { count: number }) {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: count }).map((_, i) => (
-        <Star
-          key={i}
-          size={16}
-          className="fill-amber-400 text-amber-400"
-        />
+        <Star key={i} size={16} className="fill-amber-400 text-amber-400" />
       ))}
     </div>
   );
@@ -142,7 +137,7 @@ export default function Testimonials() {
   }, []);
 
   return (
-    <section className="bg-white py-20 dark:bg-slate-950">
+    <section className="bg-[#e8f6f5] py-20 dark:bg-slate-950">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {/* ------------------------------------------------------------ */}
         {/*  Heading                                                      */}
@@ -193,7 +188,7 @@ export default function Testimonials() {
           <div
             ref={trackRef}
             className="no-scrollbar flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth pb-4"
-            style={{ scrollbarWidth: "none" }}   /* Firefox */
+            style={{ scrollbarWidth: "none" }} /* Firefox */
           >
             {testimonials.map((t, i) => (
               <motion.div

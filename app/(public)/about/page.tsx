@@ -44,16 +44,17 @@ const VALUES: ValueCard[] = [
   },
   {
     icon: (
-      <ShieldCheck size={28} className="text-emerald-600 dark:text-emerald-400" />
+      <ShieldCheck
+        size={28}
+        className="text-emerald-600 dark:text-emerald-400"
+      />
     ),
     title: "Privacy & Security",
     description:
       "Your financial data stays yours. We use bank-grade encryption, never sell your information, and give you full control over what gets stored and shared.",
   },
   {
-    icon: (
-      <Sparkles size={28} className="text-amber-600 dark:text-amber-400" />
-    ),
+    icon: <Sparkles size={28} className="text-amber-600 dark:text-amber-400" />,
     title: "AI That Actually Helps",
     description:
       "Not just buzzwords. Our AI classifies transactions instantly, spots spending patterns, and surfaces insights you can act on — without you lifting a finger.",
@@ -66,19 +67,22 @@ const TEAM: TeamMember[] = [
     initials: "AR",
     name: "Aisha Rahman",
     role: "Founder & Developer",
-    color: "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
+    color:
+      "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300",
   },
   {
     initials: "KM",
     name: "Kian Morris",
     role: "Product Designer",
-    color: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+    color:
+      "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
   },
   {
     initials: "SP",
     name: "Sara Patel",
     role: "AI & Data Engineer",
-    color: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+    color:
+      "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
   },
   {
     initials: "DL",
@@ -111,7 +115,7 @@ export default function AboutPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <main className="min-h-screen bg-[#e8f6f5] dark:bg-slate-950">
       {/* ================================================================ */}
       {/*  1. HERO / INTRO BAND                                            */}
       {/* ================================================================ */}
@@ -167,7 +171,8 @@ export default function AboutPage() {
               spending hours every month reconciling bank statements and
               categorizing expenses in a spreadsheet — a ritual that felt
               increasingly pointless in a world powered by machine learning. The
-              question was simple: why can&apos;t software do this automatically?
+              question was simple: why can&apos;t software do this
+              automatically?
             </p>
             <p className="text-base leading-relaxed text-slate-600 dark:text-slate-400">
               That frustration became a prototype. A small script that
@@ -197,7 +202,9 @@ export default function AboutPage() {
             />
             <div
               className="absolute -bottom-16 -left-8 h-72 w-72 rounded-full bg-indigo-400/20 blur-3xl"
-              style={{ animation: "floatShape 10s ease-in-out infinite reverse" }}
+              style={{
+                animation: "floatShape 10s ease-in-out infinite reverse",
+              }}
             />
             <div
               className="absolute left-1/2 top-1/3 h-48 w-48 -translate-x-1/2 rounded-full bg-white/5 blur-2xl"
@@ -266,13 +273,13 @@ export default function AboutPage() {
             {VALUES.map((value) => (
               <Card
                 key={value.title}
-                className="border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900 transition-transform duration-200 hover:-translate-y-1"
+                className=" shadow-cyan-800 border-slate-200 rounded-2xl bg-white dark:border-slate-800 dark:bg-slate-900 transition-transform duration-200 hover:-translate-y-1"
               >
                 <CardContent className="p-6">
                   <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800">
                     {value.icon}
                   </div>
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                     {value.title}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
@@ -297,11 +304,11 @@ export default function AboutPage() {
         <div className="mx-auto max-w-4xl">
           <div className="rounded-2xl border border-slate-200 bg-white p-8 sm:p-10 dark:border-slate-800 dark:bg-slate-900">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              How We&apos;re Different
+              How We're Different
             </h2>
             <p className="mt-2 text-slate-600 dark:text-slate-400">
-              SmartWallet AI replaces the manual overhead of tracking money
-              with intelligence that works in the background.
+              SmartWallet AI replaces the manual overhead of tracking money with
+              intelligence that works in the background.
             </p>
 
             <ul className="mt-8 space-y-4">
@@ -372,7 +379,7 @@ export default function AboutPage() {
         data-aos-delay="300"
         data-aos-once="true"
       >
-        <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl bg-indigo-600 dark:bg-indigo-700">
+        <div className="mx-auto max-w-6xl overflow-hidden rounded-2xl bg-linear-to-br from-[#19ad9d] to-[#2b95d0] dark:bg-indigo-700">
           <div className="flex flex-col items-center gap-8 px-8 py-14 sm:px-12 lg:flex-row lg:justify-between lg:px-16">
             <div className="max-w-lg text-center lg:text-left">
               <h2 className="text-3xl font-bold leading-tight text-white sm:text-4xl">

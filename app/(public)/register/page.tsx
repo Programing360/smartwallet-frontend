@@ -14,8 +14,12 @@ import {
   AlertCircle,
   X,
   Loader2,
+  Zap,
 } from "lucide-react";
-import { authClient, signUp } from "@/app/lib/auth-client";
+import { toast } from "react-toastify";
+import { authClient } from "@/app/lib/auth-client";
+import img1 from "../../../public/AI-Advantage-scaled.avif";
+import Image from "next/image";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -35,6 +39,18 @@ interface PasswordStrengthResult {
   level: PasswordStrengthLevel;
   percentage: number;
 }
+
+/* ------------------------------------------------------------------ */
+/*  Demo account credentials — same account used on the Login page's   */
+/*  "Try Demo Account" button. Note: attempting to actually register   */
+/*  with this email will fail with "already registered" since the     */
+/*  demo user is pre-seeded — that's expected, this button just shows  */
+/*  the flow. Consider directing demo-curious users to /login instead. */
+/* ------------------------------------------------------------------ */
+
+const DEMO_NAME = "Demo User";
+const DEMO_EMAIL = "demo@smartwallet.ai";
+const DEMO_PASSWORD = "Demo123456@#";
 
 /* ------------------------------------------------------------------ */
 /*  Password strength calculator                                       */
@@ -67,7 +83,7 @@ function validateFields(
   email: string,
   password: string,
   confirmPassword: string,
-  agreed: boolean
+  agreed: boolean,
 ): FormErrors {
   const errors: FormErrors = {};
 
@@ -128,7 +144,7 @@ function PasswordStrengthBar({
         {[1, 2, 3].map((segment) => (
           <div
             key={segment}
-            className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700"
+            className="h-1 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-white"
           >
             <motion.div
               className={`h-full rounded-full ${
@@ -161,7 +177,12 @@ function PasswordStrengthBar({
 
 function GoogleIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+    >
       <path
         d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"
         fill="#4285F4"
@@ -204,11 +225,12 @@ export default function RegisterPage() {
   const [serverError, setServerError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isDemoFilling, setIsDemoFilling] = useState(false);
 
   /* ---- derived ---- */
   const passwordStrength = useMemo(
     () => getPasswordStrength(password),
-    [password]
+    [password],
   );
 
   const isFormValid = useMemo(() => {
@@ -231,14 +253,14 @@ export default function RegisterPage() {
         email,
         password,
         confirmPassword,
-        agreed
+        agreed,
       );
       setErrors((prev) => ({
         ...prev,
         [field]: allErrors[field as keyof FormErrors],
       }));
     },
-    [name, email, password, confirmPassword, agreed]
+    [name, email, password, confirmPassword, agreed],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -250,7 +272,7 @@ export default function RegisterPage() {
       email,
       password,
       confirmPassword,
-      agreed
+      agreed,
     );
     setErrors(formErrors);
     setTouched({
@@ -271,12 +293,12 @@ export default function RegisterPage() {
         name: name.trim(),
         email,
         password,
-        callbackURL: "/dashboard",
+        callbackURL: "/",
       });
 
       if (signUpError) {
         setServerError(
-          signUpError.message || "Registration failed. Please try again."
+          signUpError.message || "Registration failed. Please try again.",
         );
       } else {
         setIsSuccess(true);
@@ -289,6 +311,71 @@ export default function RegisterPage() {
     }
   };
 
+  /* ---- Demo account auto-fill (typing animation), mirrors Login page ---- */
+  const handleDemoFill = useCallback(() => {
+    if (isLoading || isDemoFilling) return;
+    setIsDemoFilling(true);
+    setErrors({});
+    setServerError("");
+    setTouched({});
+
+    let charIndex = 0;
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setAgreed(false);
+
+    const typeName = () => {
+      charIndex++;
+      setName(DEMO_NAME.slice(0, charIndex));
+      if (charIndex < DEMO_NAME.length) {
+        setTimeout(typeName, 30);
+      } else {
+        charIndex = 0;
+        setTimeout(typeEmail, 150);
+      }
+    };
+
+    const typeEmail = () => {
+      charIndex++;
+      setEmail(DEMO_EMAIL.slice(0, charIndex));
+      if (charIndex < DEMO_EMAIL.length) {
+        setTimeout(typeEmail, 30);
+      } else {
+        charIndex = 0;
+        setTimeout(typePassword, 150);
+      }
+    };
+
+    const typePassword = () => {
+      charIndex++;
+      setPassword(DEMO_PASSWORD.slice(0, charIndex));
+      if (charIndex < DEMO_PASSWORD.length) {
+        setTimeout(typePassword, 35);
+      } else {
+        charIndex = 0;
+        setTimeout(typeConfirmPassword, 150);
+      }
+    };
+
+    const typeConfirmPassword = () => {
+      charIndex++;
+      setConfirmPassword(DEMO_PASSWORD.slice(0, charIndex));
+      if (charIndex < DEMO_PASSWORD.length) {
+        setTimeout(typeConfirmPassword, 35);
+      } else {
+        setAgreed(true);
+        setIsDemoFilling(false);
+        toast.info("Demo details filled! Ready to Create Account.", {
+          autoClose: 2000,
+        });
+      }
+    };
+
+    setTimeout(typeName, 100);
+  }, [isLoading, isDemoFilling]);
+
   /* ---- inline helper for rendering field errors ---- */
   const fieldError = (field: keyof FormErrors) =>
     touched[field] && errors[field] ? (
@@ -300,7 +387,7 @@ export default function RegisterPage() {
   /* ================================================================= */
 
   return (
-    <div className="flex min-h-[calc(100vh-4rem)] bg-white dark:bg-slate-950">
+    <div className="flex min-h-[calc(100vh-4rem)] bg-linear-to-br from-[#132329] to-[#15191c] text-white dark:bg-slate-950">
       {/* -------------------------------------------------------------- */}
       {/*  LEFT SIDE — Registration Form                                  */}
       {/* -------------------------------------------------------------- */}
@@ -332,7 +419,7 @@ export default function RegisterPage() {
                   strokeWidth={1.5}
                 />
               </motion.div>
-              <h2 className="mt-6 text-2xl font-bold text-slate-900 dark:text-white">
+              <h2 className="mt-6 text-2xl font-bold text-white dark:text-white">
                 Account created!
               </h2>
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -354,13 +441,13 @@ export default function RegisterPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600">
                   <span className="text-sm font-bold text-white">S</span>
                 </div>
-                <span className="text-lg font-bold text-slate-900 dark:text-white">
+                <span className="text-lg font-bold text-white dark:text-white">
                   SmartWallet AI
                 </span>
               </Link>
 
               {/* heading */}
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-2xl font-bold text-white dark:text-white">
                 Create your account
               </h1>
               <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -398,7 +485,7 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="name"
-                    className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                    className="mb-1.5 block text-sm font-bold text-white dark:text-slate-300"
                   >
                     Full Name
                   </label>
@@ -414,10 +501,11 @@ export default function RegisterPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       onBlur={() => handleBlur("name")}
-                      className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500 ${
+                      disabled={isLoading || isDemoFilling}
+                      className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 dark:bg-white dark:text-white dark:placeholder-slate-500 ${
                         touched.name && errors.name
                           ? "border-red-500 focus:border-red-500"
-                          : "border-slate-300 focus:border-indigo-500 dark:border-slate-700"
+                          : "border-slate-300 focus:border-indigo-500 dark:border-white"
                       }`}
                     />
                   </div>
@@ -428,7 +516,7 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                    className="mb-1.5 block text-sm font-bold text-white dark:text-slate-300"
                   >
                     Email
                   </label>
@@ -444,10 +532,11 @@ export default function RegisterPage() {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       onBlur={() => handleBlur("email")}
-                      className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500 ${
+                      disabled={isLoading || isDemoFilling}
+                      className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 dark:bg-white dark:text-white dark:placeholder-slate-500 ${
                         touched.email && errors.email
                           ? "border-red-500 focus:border-red-500"
-                          : "border-slate-300 focus:border-indigo-500 dark:border-slate-700"
+                          : "border-slate-300 focus:border-indigo-500 dark:border-white"
                       }`}
                     />
                   </div>
@@ -458,7 +547,7 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="password"
-                    className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                    className="mb-1.5 block text-sm font-bold text-white dark:text-slate-300"
                   >
                     Password
                   </label>
@@ -474,16 +563,17 @@ export default function RegisterPage() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       onBlur={() => handleBlur("password")}
-                      className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500 ${
+                      disabled={isLoading || isDemoFilling}
+                      className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-10 text-sm text-white placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 dark:bg-white dark:text-white dark:placeholder-slate-500 ${
                         touched.password && errors.password
                           ? "border-red-500 focus:border-red-500"
-                          : "border-slate-300 focus:border-indigo-500 dark:border-slate-700"
+                          : "border-slate-300 focus:border-indigo-500 dark:border-white"
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white dark:hover:text-slate-300"
                       tabIndex={-1}
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
@@ -501,7 +591,7 @@ export default function RegisterPage() {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300"
+                    className="mb-1.5 block text-sm font-bold text-white dark:text-slate-300"
                   >
                     Confirm Password
                   </label>
@@ -517,10 +607,11 @@ export default function RegisterPage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       onBlur={() => handleBlur("confirmPassword")}
-                      className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-10 text-sm text-slate-900 placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500 ${
+                      disabled={isLoading || isDemoFilling}
+                      className={`w-full rounded-xl border bg-white py-2.5 pl-10 pr-10 text-sm text-white placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 dark:bg-white dark:text-white dark:placeholder-slate-500 ${
                         touched.confirmPassword && errors.confirmPassword
                           ? "border-red-500 focus:border-red-500"
-                          : "border-slate-300 focus:border-indigo-500 dark:border-slate-700"
+                          : "border-slate-300 focus:border-indigo-500 dark:border-white"
                       }`}
                     />
                     <button
@@ -528,7 +619,7 @@ export default function RegisterPage() {
                       onClick={() =>
                         setShowConfirmPassword(!showConfirmPassword)
                       }
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white dark:hover:text-slate-300"
                       tabIndex={-1}
                     >
                       {showConfirmPassword ? (
@@ -547,6 +638,7 @@ export default function RegisterPage() {
                     <input
                       type="checkbox"
                       checked={agreed}
+                      disabled={isLoading || isDemoFilling}
                       onChange={(e) => {
                         setAgreed(e.target.checked);
                         if (touched.terms) {
@@ -559,15 +651,15 @@ export default function RegisterPage() {
                         }
                       }}
                       onBlur={() => handleBlur("terms")}
-                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-slate-600"
+                      className="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 disabled:opacity-60 dark:border-white"
                     />
-                    <span className="text-sm text-slate-600 dark:text-slate-400">
+                    <span className="text-sm text-white dark:text-slate-400">
                       I agree to the{" "}
                       <Link
                         href="/terms"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                        className="font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
                       >
                         Terms of Service
                       </Link>{" "}
@@ -576,7 +668,7 @@ export default function RegisterPage() {
                         href="/privacy"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                        className="font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
                       >
                         Privacy Policy
                       </Link>
@@ -588,36 +680,87 @@ export default function RegisterPage() {
                 {/* submit button */}
                 <button
                   type="submit"
-                  disabled={isLoading || !isFormValid}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  disabled={isLoading || isDemoFilling || !isFormValid}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isLoading ? (
                     <>
                       <Loader2 size={18} className="animate-spin" />
-                      Creating account...
+                      <span className="font-bold">Creating account...</span>
                     </>
                   ) : (
-                    "Create Account"
+                    <span className="font-bold">Create Account</span>
                   )}
                 </button>
               </form>
 
+              {/* Demo Button */}
+              <button
+                type="button"
+                onClick={handleDemoFill}
+                disabled={isLoading || isDemoFilling}
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-bold text-emerald-700 transition hover:bg-emerald-100 disabled:opacity-50 dark:border-emerald-800/60 dark:bg-emerald-950/20 dark:text-emerald-400"
+              >
+                {isDemoFilling ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Filling details...
+                  </>
+                ) : (
+                  <>
+                    <Zap size={18} />
+                    <span className="font-bold">Try Demo Account</span>
+                  </>
+                )}
+              </button>
+
               {/* divider */}
               <div className="my-6 flex items-center gap-3">
-                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-                <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                <div className="h-px flex-1 bg-slate-200 dark:bg-white" />
+                <span className="text-xs font-bold text-slate-400 dark:text-slate-500">
                   or continue with
                 </span>
-                <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+                <div className="h-px flex-1 bg-slate-200 dark:bg-white" />
               </div>
 
               {/* google button */}
               <button
                 type="button"
-                className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                disabled={isLoading || isDemoFilling}
+                onClick={async () => {
+                  if (isLoading || isDemoFilling) return;
+                  setIsLoading(true);
+                  const toastId = toast.loading(
+                    "Connecting to Google Secure Gate...",
+                  );
+                  try {
+                    const result = await authClient.signIn.social({
+                      provider: "google",
+                      callbackURL: "/",
+                    });
+                    if (result?.error) {
+                      setIsLoading(false);
+                      toast.update(toastId, {
+                        render:
+                          result.error.message ||
+                          "Google authentication failed",
+                        type: "error",
+                        isLoading: false,
+                        autoClose: 3000,
+                      });
+                    } else {
+                      toast.dismiss(toastId);
+                    }
+                  } catch {
+                    setIsLoading(false);
+                    toast.dismiss(toastId);
+                    toast.error("Failed to initialize Google Login.");
+                  }
+                }}
+                className="flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-[#00bb7f] transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50 dark:border-white dark:bg-white dark:text-slate-200 dark:hover:bg-slate-800"
               >
                 <GoogleIcon />
-                Continue with Google
+                <span className="font-bold">Continue with Google</span>
               </button>
 
               {/* sign-in link */}
@@ -625,7 +768,7 @@ export default function RegisterPage() {
                 Already have an account?{" "}
                 <Link
                   href="/login"
-                  className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                  className="font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
                 >
                   Log in
                 </Link>
@@ -640,7 +783,7 @@ export default function RegisterPage() {
       {/* ---------------------------------------------------------------- */}
       <div className="pointer-events-none relative hidden w-[45%] overflow-hidden lg:block xl:w-1/2">
         {/* gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-900" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[#0e1922] via-[#172335] to-indigo-900" />
 
         {/* abstract decorative shapes */}
         <div className="absolute -right-20 -top-20 h-80 w-80 rounded-full bg-emerald-400/20 blur-3xl" />
@@ -649,14 +792,21 @@ export default function RegisterPage() {
 
         {/* content */}
         <div className="relative z-10 flex h-full flex-col items-center justify-center px-12 xl:px-16">
+          <Image
+            data-aos="zoom-in"
+            src={img1}
+            alt="img of ai"
+            width={400}
+            height={400}
+          ></Image>
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
             className="max-w-md text-center"
           >
-            <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
-              <span className="text-2xl font-bold text-white">S</span>
+            <div className="mx-auto mb-8 flex  items-center justify-center rounded-2xl bg-white/10 backdrop-blur-sm">
+              {/* <span className="text-2xl font-bold text-white">S</span> */}
             </div>
             <h2 className="text-3xl font-bold leading-tight text-white xl:text-4xl">
               Join thousands tracking smarter
@@ -678,7 +828,7 @@ export default function RegisterPage() {
                   <CheckCircle2 size={20} className="text-emerald-400" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-bold text-white">
                     Smart categorization
                   </p>
                   <p className="text-xs text-indigo-200">
@@ -697,7 +847,7 @@ export default function RegisterPage() {
                   <AlertCircle size={20} className="text-amber-400" />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-white">
+                  <p className="text-sm font-bold text-white">
                     Budget alerts
                   </p>
                   <p className="text-xs text-indigo-200">

@@ -3,14 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  User,
-  Calendar,
-  Clock,
-  ArrowRight,
-  X,
-  BookOpen,
-} from "lucide-react";
+import { User, Calendar, Clock, ArrowRight, X, BookOpen } from "lucide-react";
 import {
   Skeleton,
   Select,
@@ -53,12 +46,48 @@ const CATEGORY_COLORS: Record<
   BlogCategory,
   { bg: string; text: string; darkBg: string; darkText: string; border: string }
 > = {
-  budgeting: { bg: "bg-indigo-50", text: "text-indigo-700", darkBg: "dark:bg-indigo-950/40", darkText: "dark:text-indigo-400", border: "border-indigo-200 dark:border-indigo-900/50" },
-  saving: { bg: "bg-emerald-50", text: "text-emerald-700", darkBg: "dark:bg-emerald-950/40", darkText: "dark:text-emerald-400", border: "border-emerald-200 dark:border-emerald-900/50" },
-  investing: { bg: "bg-blue-50", text: "text-blue-700", darkBg: "dark:bg-blue-950/40", darkText: "dark:text-blue-400", border: "border-blue-200 dark:border-blue-900/50" },
-  debt_management: { bg: "bg-rose-50", text: "text-rose-700", darkBg: "dark:bg-rose-950/40", darkText: "dark:text-rose-400", border: "border-rose-200 dark:border-rose-900/50" },
-  financial_planning: { bg: "bg-amber-50", text: "text-amber-700", darkBg: "dark:bg-amber-950/40", darkText: "dark:text-amber-400", border: "border-amber-200 dark:border-amber-900/50" },
-  ai_finance: { bg: "bg-purple-50", text: "text-purple-700", darkBg: "dark:bg-purple-950/40", darkText: "dark:text-purple-400", border: "border-purple-200 dark:border-purple-900/50" },
+  budgeting: {
+    bg: "bg-indigo-50",
+    text: "text-indigo-700",
+    darkBg: "dark:bg-indigo-950/40",
+    darkText: "dark:text-indigo-400",
+    border: "border-indigo-200 dark:border-indigo-900/50",
+  },
+  saving: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    darkBg: "dark:bg-emerald-950/40",
+    darkText: "dark:text-emerald-400",
+    border: "border-emerald-200 dark:border-emerald-900/50",
+  },
+  investing: {
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    darkBg: "dark:bg-blue-950/40",
+    darkText: "dark:text-blue-400",
+    border: "border-blue-200 dark:border-blue-900/50",
+  },
+  debt_management: {
+    bg: "bg-rose-50",
+    text: "text-rose-700",
+    darkBg: "dark:bg-rose-950/40",
+    darkText: "dark:text-rose-400",
+    border: "border-rose-200 dark:border-rose-900/50",
+  },
+  financial_planning: {
+    bg: "bg-amber-50",
+    text: "text-amber-700",
+    darkBg: "dark:bg-amber-950/40",
+    darkText: "dark:text-amber-400",
+    border: "border-amber-200 dark:border-amber-900/50",
+  },
+  ai_finance: {
+    bg: "bg-purple-50",
+    text: "text-purple-700",
+    darkBg: "dark:bg-purple-950/40",
+    darkText: "dark:text-purple-400",
+    border: "border-purple-200 dark:border-purple-900/50",
+  },
 };
 
 const CATEGORY_LABELS: Record<BlogCategory, string> = {
@@ -128,7 +157,9 @@ function BlogCard({ blog, index }: { blog: Blog; index: number }) {
         isFeatured ? "md:col-span-2 lg:flex-row" : ""
       }`}
     >
-      <div className={`relative overflow-hidden aspect-[16/10] ${isFeatured ? "w-full lg:max-w-[45%]" : "w-full"}`}>
+      <div
+        className={`relative overflow-hidden aspect-[16/10] ${isFeatured ? "w-full lg:max-w-[45%]" : "w-full"}`}
+      >
         <Image
           src={blog.coverImageUrl}
           alt={blog.title}
@@ -140,15 +171,22 @@ function BlogCard({ blog, index }: { blog: Blog; index: number }) {
 
       <div className="flex flex-1 flex-col p-6 sm:p-7">
         <div className="mb-3">
-          <span className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-medium tracking-wide shadow-sm backdrop-blur-sm ${catColors.bg} ${catColors.text} ${catColors.darkBg} ${catColors.darkText} ${catColors.border}`}>
+          <span
+            className={`inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-medium tracking-wide shadow-sm backdrop-blur-sm ${catColors.bg} ${catColors.text} ${catColors.darkBg} ${catColors.darkText} ${catColors.border}`}
+          >
             {catLabel}
           </span>
         </div>
 
-        <Link href={`/blog/${blog.slug}`} className="block group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-          <h3 className={`font-bold text-slate-900 tracking-tight dark:text-white transition-colors duration-200 ${
-            isFeatured ? "text-xl sm:text-2xl" : "text-lg line-clamp-2"
-          }`}>
+        <Link
+          href={`/blog/${blog.slug}`}
+          className="block group-hover:text-indigo-600 dark:group-hover:text-indigo-400"
+        >
+          <h3
+            className={`font-bold text-slate-900 tracking-tight dark:text-white transition-colors duration-200 ${
+              isFeatured ? "text-xl sm:text-2xl" : "text-lg line-clamp-2"
+            }`}
+          >
             {blog.title}
           </h3>
         </Link>
@@ -163,7 +201,10 @@ function BlogCard({ blog, index }: { blog: Blog; index: number }) {
             {blog.author}
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <Calendar size={14} className="text-slate-300 dark:text-slate-600" />
+            <Calendar
+              size={14}
+              className="text-slate-300 dark:text-slate-600"
+            />
             {formatDate(blog.publishedAt)}
           </span>
           <span className="inline-flex items-center gap-1.5">
@@ -178,7 +219,10 @@ function BlogCard({ blog, index }: { blog: Blog; index: number }) {
             className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-indigo-600 dark:text-indigo-400"
           >
             Read Full Article
-            <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+            <ArrowRight
+              size={14}
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
           </Link>
         </div>
       </div>
@@ -195,9 +239,12 @@ function EmptyState({ onClear }: { onClear: () => void }) {
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-500">
         <BookOpen size={24} />
       </div>
-      <h3 className="text-lg font-bold text-slate-900 dark:text-white">No articles matched</h3>
+      <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+        No articles matched
+      </h3>
       <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        We couldn&apos;t find any matching publications. Try adjusting your input parameters.
+        We couldn&apos;t find any matching publications. Try adjusting your
+        input parameters.
       </p>
       <button
         onClick={onClear}
@@ -258,7 +305,7 @@ function PaginationControls({
           >
             {p}
           </button>
-        )
+        ),
       )}
       <button
         onClick={() => onPageChange(current + 1)}
@@ -306,12 +353,12 @@ export default function BlogPage() {
     setPage(1);
   }, []);
 
-  const hasActiveFilters = searchInput !== "" || category !== "all" || sort !== "newest";
+  const hasActiveFilters =
+    searchInput !== "" || category !== "all" || sort !== "newest";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-[#e8f6f5]  dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 selection:bg-indigo-500 selection:text-white">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        
         {/* HEADER SECTION */}
         <div className="relative mx-auto max-w-5xl text-center mb-16">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-72 h-72 bg-indigo-500/10 dark:bg-indigo-500/5 blur-3xl rounded-full -z-10" />
@@ -322,26 +369,26 @@ export default function BlogPage() {
             Financial Knowledge Hub
           </h1>
           <p className="mx-auto mt-4 max-w-xl text-base sm:text-lg leading-relaxed text-slate-500 dark:text-slate-400">
-            Smart budgeting metrics, market updates, and leveraging modern AI frameworks to accelerate your financial freedom.
+            Smart budgeting metrics, market updates, and leveraging modern AI
+            frameworks to accelerate your financial freedom.
           </p>
         </div>
 
         {/* CONTROLS / TOOLBAR */}
         <div className="mx-auto max-w-7xl rounded-2xl border border-slate-200/60 bg-white/60 p-4 shadow-xl shadow-slate-200/10 backdrop-blur-md dark:border-slate-800/60 dark:bg-slate-900/60 dark:shadow-none mb-8">
           <div className="flex flex-col gap-4 md:flex-row items-center w-full">
-            
             {/* SearchField Compound Architecture */}
             <div className="w-full md:flex-1">
-              <SearchField 
-                value={searchInput} 
+              <SearchField
+                value={searchInput}
                 onChange={setSearchInput}
                 className="w-full"
               >
                 <Label className="sr-only">Search articles</Label>
                 <SearchField.Group className="relative flex items-center w-full h-11 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-xl focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 transition-all duration-200">
                   <SearchField.SearchIcon className="absolute left-4 w-4 h-4 text-slate-400 pointer-events-none" />
-                  <SearchField.Input 
-                    placeholder="Search resources, topics, articles..." 
+                  <SearchField.Input
+                    placeholder="Search resources, topics, articles..."
                     className="w-full h-full pl-11 pr-10 bg-transparent text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 outline-none"
                   />
                   {searchInput && (
@@ -350,41 +397,48 @@ export default function BlogPage() {
                     </SearchField.ClearButton>
                   )}
                 </SearchField.Group>
-                <Description className="sr-only">Search articles filtering input description</Description>
+                <Description className="sr-only">
+                  Search articles filtering input description
+                </Description>
               </SearchField>
             </div>
 
             {/* Custom Select Form Components using requested layout syntax */}
             <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto shrink-0">
-              
               {/* Category Dropdown */}
-              <Select 
-                selectedKey={category} 
-                onSelectionChange={(key) => setCategory((key ? String(key) : "all") as BlogCategoryFilter)}
+              <Select
+                selectedKey={category}
+                onSelectionChange={(key) =>
+                  setCategory((key ? String(key) : "all") as BlogCategoryFilter)
+                }
                 className="w-full sm:w-48"
               >
                 <Label className="sr-only">Category</Label>
                 <Select.Trigger className="flex items-center justify-between w-full h-11 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 outline-none">
                   <Select.Value>
-                    {CATEGORY_OPTIONS.find(o => o.id === category)?.label}
+                    {CATEGORY_OPTIONS.find((o) => o.id === category)?.label}
                   </Select.Value>
                   <Select.Indicator />
                 </Select.Trigger>
-                <Description className="sr-only">Filter list by category sorting logic</Description>
+                <Description className="sr-only">
+                  Filter list by category sorting logic
+                </Description>
                 <Select.Popover className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl mt-1 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <ListBox className="p-1 space-y-0.5 max-h-64 overflow-y-auto outline-none">
                     {CATEGORY_OPTIONS.map((opt) => (
-                      <ListBox.Item 
-                        key={opt.id} 
+                      <ListBox.Item
+                        key={opt.id}
                         id={opt.id}
                         className={`flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors outline-none select-none ${
-                          category === opt.id 
-                            ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400" 
+                          category === opt.id
+                            ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400"
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                         }`}
                       >
                         <Label>{opt.label}</Label>
-                        <Description className="sr-only">{opt.label} filter option</Description>
+                        <Description className="sr-only">
+                          {opt.label} filter option
+                        </Description>
                         <ListBox.ItemIndicator />
                       </ListBox.Item>
                     ))}
@@ -393,28 +447,32 @@ export default function BlogPage() {
               </Select>
 
               {/* Sorting Dropdown */}
-              <Select 
-                selectedKey={sort} 
-                onSelectionChange={(key) => setSort((key ? String(key) : "newest") as BlogSortOption)}
+              <Select
+                selectedKey={sort}
+                onSelectionChange={(key) =>
+                  setSort((key ? String(key) : "newest") as BlogSortOption)
+                }
                 className="w-full sm:w-44"
               >
                 <Label className="sr-only">Sort By</Label>
                 <Select.Trigger className="flex items-center justify-between w-full h-11 px-4 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/60 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 outline-none">
                   <Select.Value>
-                    {SORT_OPTIONS.find(o => o.id === sort)?.label}
+                    {SORT_OPTIONS.find((o) => o.id === sort)?.label}
                   </Select.Value>
                   <Select.Indicator />
                 </Select.Trigger>
-                <Description className="sr-only">Ordering sequence for system posts</Description>
+                <Description className="sr-only">
+                  Ordering sequence for system posts
+                </Description>
                 <Select.Popover className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl mt-1 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                   <ListBox className="p-1 space-y-0.5 outline-none">
                     {SORT_OPTIONS.map((opt) => (
-                      <ListBox.Item 
-                        key={opt.id} 
+                      <ListBox.Item
+                        key={opt.id}
                         id={opt.id}
                         className={`flex items-center justify-between px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-colors outline-none select-none ${
-                          sort === opt.id 
-                            ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400" 
+                          sort === opt.id
+                            ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400"
                             : "text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                         }`}
                       >
@@ -425,14 +483,15 @@ export default function BlogPage() {
                   </ListBox>
                 </Select.Popover>
               </Select>
-
             </div>
           </div>
 
           {/* Active Filtering badging row */}
           {hasActiveFilters && (
             <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800/60 flex items-center gap-2">
-              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Filters:</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                Active Filters:
+              </span>
               <button
                 onClick={clearFilters}
                 className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-bold text-indigo-600 transition-all hover:bg-indigo-100 dark:bg-indigo-950/60 dark:text-indigo-400 dark:hover:bg-indigo-900"
@@ -447,7 +506,8 @@ export default function BlogPage() {
         {/* ERROR STATE */}
         {error && (
           <div className="mx-auto max-w-7xl mb-8 rounded-2xl border border-red-200 bg-red-50/50 p-4 text-sm font-medium text-red-600 backdrop-blur-sm dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-400">
-            Network sync down. Failed to load publications. Please check your parameters.
+            Network sync down. Failed to load publications. Please check your
+            parameters.
           </div>
         )}
 
@@ -462,7 +522,9 @@ export default function BlogPage() {
           ) : blogs.length === 0 ? (
             <EmptyState onClear={clearFilters} />
           ) : (
-            <div className={`transition-opacity duration-300 ${isRefetching ? "pointer-events-none opacity-40" : "opacity-100"}`}>
+            <div
+              className={`transition-opacity duration-300 ${isRefetching ? "pointer-events-none opacity-40" : "opacity-100"}`}
+            >
               <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 <AnimatePresence mode="popLayout">
                   {blogs.map((blog, i) => (

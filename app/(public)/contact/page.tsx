@@ -222,7 +222,7 @@ export default function ContactPage() {
     "Select a subject topic";
 
   return (
-    <main className="relative min-h-screen bg-slate-50 overflow-x-hidden px-4 py-24 transition-colors duration-300 dark:bg-[#020618] sm:px-6 lg:px-8">
+    <main className="relative min-h-screen bg-[#e8f6f5] overflow-x-hidden px-4 py-24 transition-colors duration-300 dark:bg-[#020618] sm:px-6 lg:px-8">
       {/* Decorative Blur Backgrounds */}
       <div className="absolute top-[-10%] left-[-10%] h-[500px] w-[500px] rounded-full bg-indigo-500/10 blur-[120px] pointer-events-none dark:bg-indigo-500/5" />
       <div className="absolute bottom-[10%] right-[-10%] h-[600px] w-[600px] rounded-full bg-emerald-500/5 blur-[140px] pointer-events-none" />
@@ -296,7 +296,6 @@ export default function ContactPage() {
                       typically respond within 24 hours.
                     </p>
                     <Button
-                      
                       onPress={resetForm}
                       className="mt-8 font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 dark:hover:text-indigo-300"
                     >

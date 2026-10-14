@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useTheme } from "next-themes";
 import {
   Menu,
   X,
@@ -14,6 +15,8 @@ import {
   Wallet,
   Settings,
   UserCircle,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { useClientSession } from "@/app/lib/session";
 import { authClient } from "@/app/lib/auth-client";
@@ -38,10 +41,16 @@ export default function Navbar() {
   const { user, isPending } = useClientSession();
   const isLoggedIn = !isPending && !!user;
 
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const closeDropdown = useCallback(() => {
     setIsProfileDropdownOpen(false);
@@ -85,17 +94,42 @@ export default function Navbar() {
     router.refresh();
   };
 
-  const loggedOutLinks: { name: string; href: string; icon?: React.ReactNode }[] = [
+  const loggedOutLinks: {
+    name: string;
+    href: string;
+    icon?: React.ReactNode;
+  }[] = [
     { name: "Home", href: "/" },
     { name: "Transaction", href: "/blog" },
     { name: "About", href: "/about" },
     { name: "Contact", href: "/contact" },
   ];
 
-  const loggedInLinks: { name: string; href: string; icon?: React.ReactNode }[] = [
-    { name: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={18} /> },
-    { name: "Transactions", href: "/transactions", icon: <ArrowRightLeft size={18} /> },
-    { name: "Add Transaction", href: "/transactions/add", icon: <PlusCircle size={18} className="text-emerald-500" /> },
+  const loggedInLinks: {
+    name: string;
+    href: string;
+    icon?: React.ReactNode;
+  }[] = [
+    {
+      name: "Dashboard",
+      href: "/dashboard",
+      icon: <LayoutDashboard size={18} />,
+    },
+    {
+      name: "Transactions",
+      href: "/transactions",
+      icon: <ArrowRightLeft size={18} />,
+    },
+    {
+      name: "Manage",
+      href: "/transactions/manage",
+      icon: <ArrowRightLeft size={18} />,
+    },
+    {
+      name: "Add Transaction",
+      href: "/transactions/add",
+      icon: <PlusCircle size={18} className="text-emerald-500" />,
+    },
     { name: "Reports", href: "/reports", icon: <PieChart size={18} /> },
   ];
 
@@ -107,7 +141,7 @@ export default function Navbar() {
   const displayEmail = user?.email || "";
 
   return (
-    <nav className=" z-50 w-full border-b border-slate-200 bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-black/80 font-sans">
+    <nav className=" z-50 w-full border-b border-slate-200 shadow bg-white/80 backdrop-blur-md dark:border-slate-800 dark:bg-black/80 font-sans">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -144,9 +178,26 @@ export default function Navbar() {
 
           {/* Right Section */}
           <div className="hidden md:block">
-            <div className="ml-4 flex items-center md:ml-6">
+            <div className="ml-4 flex items-center md:ml-6 gap-2">
+              {/* Desktop Dark Mode Toggle Icon */}
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className={`p-2 rounded-xl border transition-all duration-300 backdrop-blur-md ${
+                  theme === "dark"
+                    ? "bg-slate-900/40 border-slate-800 text-amber-400 hover:bg-slate-800/60"
+                    : "bg-white/50 border-slate-200 text-indigo-600 hover:bg-slate-100/80 shadow-sm"
+                }`}
+                aria-label="Toggle dark mode"
+              >
+                {mounted && theme === "dark" ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+              </button>
+
               {!isLoggedIn ? (
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 ml-2">
                   <Link
                     href="/login"
                     className="text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
@@ -154,14 +205,14 @@ export default function Navbar() {
                     Log in
                   </Link>
                   <Link
-                    href="/signup"
+                    href="/register"
                     className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
                   >
                     Get Started
                   </Link>
                 </div>
               ) : (
-                <div className="relative">
+                <div className="relative ml-2">
                   <button
                     ref={triggerRef}
                     onClick={() => setIsProfileDropdownOpen((prev) => !prev)}
@@ -201,7 +252,10 @@ export default function Navbar() {
                           onClick={closeDropdown}
                           className="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/50"
                         >
-                          <UserCircle size={18} className="text-slate-400 dark:text-slate-500" />
+                          <UserCircle
+                            size={18}
+                            className="text-slate-400 dark:text-slate-500"
+                          />
                           Profile
                         </Link>
                         <Link
@@ -209,7 +263,10 @@ export default function Navbar() {
                           onClick={closeDropdown}
                           className="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/50"
                         >
-                          <LayoutDashboard size={18} className="text-slate-400 dark:text-slate-500" />
+                          <LayoutDashboard
+                            size={18}
+                            className="text-slate-400 dark:text-slate-500"
+                          />
                           Dashboard
                         </Link>
                         <Link
@@ -217,7 +274,10 @@ export default function Navbar() {
                           onClick={closeDropdown}
                           className="flex items-center gap-3 px-5 py-2.5 text-sm text-slate-700 transition-colors hover:bg-slate-50 dark:text-slate-200 dark:hover:bg-slate-800/50"
                         >
-                          <Settings size={18} className="text-slate-400 dark:text-slate-500" />
+                          <Settings
+                            size={18}
+                            className="text-slate-400 dark:text-slate-500"
+                          />
                           Settings
                         </Link>
                       </div>
@@ -239,14 +299,31 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="-mr-2 flex md:hidden">
+          {/* Mobile menu and Dark Mode button container */}
+          <div className="-mr-2 flex items-center md:hidden gap-2">
+            {/* Mobile Dark Mode Toggle Icon */}
+            <button
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              aria-label="Toggle dark mode"
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-transparent text-slate-500 transition-colors hover:bg-slate-100 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
+              {mounted && theme === "dark" ? (
+                <Sun size={18} className="text-amber-500" />
+              ) : (
+                <Moon size={18} className="text-slate-600" />
+              )}
+            </button>
+
             <button
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
               className="inline-flex items-center justify-center rounded-xl p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-500 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500 dark:hover:bg-slate-800 dark:hover:text-slate-300"
             >
               <span className="sr-only">Open main menu</span>
-              {isMobileMenuOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
+              {isMobileMenuOpen ? (
+                <X size={24} aria-hidden="true" />
+              ) : (
+                <Menu size={24} aria-hidden="true" />
+              )}
             </button>
           </div>
         </div>
@@ -326,7 +403,7 @@ export default function Navbar() {
                   Log in
                 </Link>
                 <Link
-                  href="/signup"
+                  href="/register"
                   onClick={closeMobileMenu}
                   className="block rounded-xl bg-indigo-600 px-4 py-2 text-center text-base font-medium text-white transition-colors hover:bg-indigo-700"
                 >

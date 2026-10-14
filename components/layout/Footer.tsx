@@ -101,7 +101,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-slate-900">
+    <footer className="bg-[#0a0a0f]">
       <div className="mx-auto max-w-7xl px-4 pt-16 pb-8 sm:px-6 lg:px-8">
         {/* ------------------------------------------------------------ */}
         {/*  Top grid                                                     */}

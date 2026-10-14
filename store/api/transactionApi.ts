@@ -57,6 +57,7 @@ export interface CreateTransactionPayload {
   date: string;
   shortDescription: string;
   description: string;
+  fullDescription: string;
   imageUrl: string;
 }
 
@@ -235,6 +236,22 @@ export const transactionApi = createApi({
       ],
     }),
 
+    /* ---- full update for the Edit Transaction modal ---- */
+    updateTransaction: builder.mutation<
+      TransactionDetail,
+      { id: string } & Partial<CreateTransactionPayload>
+    >({
+      query: ({ id, ...body }) => ({
+        url: `/transactions/${id}`,
+        method: "PATCH",
+        body,
+      }),
+      invalidatesTags: (_result, _error, { id }) => [
+        { type: "Transaction", id },
+        { type: "Transaction", id: "LIST" },
+      ],
+    }),
+
     /* ---- single transaction detail ---- */
     getTransactionById: builder.query<TransactionDetail, string>({
       query: (id) => `/transactions/${id}`,
@@ -265,4 +282,5 @@ export const {
   useBulkDeleteTransactionsMutation,
   useGetTransactionByIdQuery,
   useGetRelatedTransactionsQuery,
+  useUpdateTransactionMutation,
 } = transactionApi;

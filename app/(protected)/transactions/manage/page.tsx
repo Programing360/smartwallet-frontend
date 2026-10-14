@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,14 +20,21 @@ import {
   Film,
   MoreHorizontal,
   Sparkles,
+  Pencil,
+  ImageIcon,
+  AlertCircle,
 } from "lucide-react";
 import {
   useGetTransactionsQuery,
+  useGetTransactionByIdQuery,
   useUpdateTransactionCategoryMutation,
   useDeleteTransactionMutation,
   useBulkDeleteTransactionsMutation,
+  useUpdateTransactionMutation,
   type Transaction,
   type TransactionCategory,
+  type TransactionType,
+  type TransactionDetail,
 } from "@/store/api/transactionApi";
 import { formatCurrency } from "@/lib/formatters";
 
@@ -237,8 +244,12 @@ function CategoryCell({
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [updateCategory] = useUpdateTransactionCategoryMutation();
   const dropdownRef = useRef<HTMLDivElement>(null);
+;
 
-  const cat = CATEGORY_COLORS[transaction.category] ?? CATEGORY_COLORS.other;
+const cat =
+  CATEGORY_COLORS[
+    transaction.category.toLowerCase() as TransactionCategory
+  ] ?? CATEGORY_COLORS.other;
 
   /* close dropdown on outside click */
   useEffect(() => {
@@ -460,6 +471,469 @@ function PaginationControls({
 }
 
 /* ------------------------------------------------------------------ */
+/*  Edit Transaction Modal                                             */
+/* ------------------------------------------------------------------ */
+
+type FormFieldErrors = {
+  title?: string;
+  amount?: string;
+  date?: string;
+};
+
+function validateEditForm(
+  title: string,
+  amount: string,
+  date: string,
+): FormFieldErrors {
+  const errors: FormFieldErrors = {};
+  if (!title || title.trim().length < 2)
+    errors.title = "Title must be at least 2 characters";
+  if (!amount || isNaN(Number(amount)) || Number(amount) <= 0)
+    errors.amount = "Please enter a valid positive amount";
+  if (!date) errors.date = "Date is required";
+  return errors;
+}
+
+function EditTransactionModal({
+  transactionId,
+  onClose,
+}: {
+  transactionId: string;
+  onClose: () => void;
+}) {
+  const { data: transaction, isLoading: isLoadingDetail } =
+    useGetTransactionByIdQuery(transactionId);
+
+  /* ---- form state initialised from the selected transaction ---- */
+  const [type, setType] = useState<TransactionType>("expense");
+  const [title, setTitle] = useState("");
+  const [amount, setAmount] = useState("");
+  const [date, setDate] = useState("");
+  const [category, setCategory] = useState<TransactionCategory>("other");
+  const [shortDescription, setShortDescription] = useState("");
+  const [fullDescription, setFullDescription] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+
+  /* keyed by transactionId so we remount when a different transaction is selected,
+     preventing stale form state between edits */
+  useEffect(() => {
+    if (!transaction) return;
+    setType(transaction.type);
+    setTitle(transaction.title);
+    setAmount(String(transaction.amount));
+    setDate(transaction.date ? transaction.date.split("T")[0] : "");
+    setCategory(transaction.category);
+    setShortDescription(transaction.description ?? "");
+    setFullDescription(transaction.fullDescription ?? "");
+    setImageUrl(transaction.imageUrl ?? "");
+    setErrors({});
+    setTouched({});
+    setServerError("");
+  }, [transaction]);
+
+  /* ---- validation & ui state ---- */
+  const [errors, setErrors] = useState<FormFieldErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [serverError, setServerError] = useState("");
+  const [updateTransaction, { isLoading: isSubmitting }] =
+    useUpdateTransactionMutation();
+
+  /* ---- inline validation helpers ---- */
+  const handleBlur = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const fieldErrors = validateEditForm(title, amount, date);
+    setErrors((prev) => ({
+      ...prev,
+      [field]: fieldErrors[field as keyof FormFieldErrors],
+    }));
+  };
+
+  const fieldError = (field: keyof FormFieldErrors) =>
+    touched[field] && errors[field] ? (
+      <p className="mt-1.5 text-xs text-red-500">{errors[field]}</p>
+    ) : null;
+
+  /* ---- image preview ---- */
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  /* ---- shared input classes ---- */
+  const inputBase =
+    "w-full rounded-xl border bg-white py-2.5 pl-4 pr-4 text-sm text-slate-900 placeholder-slate-400 outline-none transition-colors focus:ring-2 focus:ring-indigo-500/20 dark:bg-slate-900 dark:text-white dark:placeholder-slate-500";
+  const inputNormal =
+    "border-slate-300 focus:border-indigo-500 dark:border-slate-700";
+  const inputError = "border-red-500 focus:border-red-500";
+
+  /* ---- type toggle ---- */
+  function TypeToggle({
+    value,
+    onChange,
+  }: {
+    value: TransactionType;
+    onChange: (v: TransactionType) => void;
+  }) {
+    return (
+      <div className="relative flex overflow-hidden rounded-xl border border-slate-200 bg-slate-100 dark:border-slate-700 dark:bg-slate-800">
+        <motion.div
+          className={`absolute inset-y-0 w-1/2 rounded-xl ${
+            value === "expense"
+              ? "bg-rose-50 dark:bg-rose-950/50"
+              : "bg-emerald-50 dark:bg-emerald-950/50"
+          }`}
+          animate={{ x: value === "expense" ? 0 : "100%" }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+        />
+        <button
+          type="button"
+          onClick={() => onChange("expense")}
+          className={`relative z-10 flex-1 py-2.5 text-sm font-medium transition-colors ${
+            value === "expense"
+              ? "text-rose-600 dark:text-rose-400"
+              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+          }`}
+        >
+          Expense
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange("income")}
+          className={`relative z-10 flex-1 py-2.5 text-sm font-medium transition-colors ${
+            value === "income"
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+          }`}
+        >
+          Income
+        </button>
+      </div>
+    );
+  }
+
+  /* ---- reset form whenever transaction changes (key-based remount handles this) ---- */
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setServerError("");
+
+    const fieldErrors = validateEditForm(title, amount, date);
+    setErrors(fieldErrors);
+    setTouched({ title: true, amount: true, date: true });
+
+    if (Object.keys(fieldErrors).length > 0) return;
+
+    try {
+      await updateTransaction({
+        id: transactionId,
+        title: title.trim(),
+        amount: Number(amount),
+        type,
+        category,
+        date,
+        shortDescription: shortDescription.trim(),
+        fullDescription: fullDescription.trim(),
+        imageUrl: imageUrl.trim(),
+      }).unwrap();
+      onClose();
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Failed to update transaction.";
+      setServerError(msg);
+    }
+  };
+
+  /* ---- loading state while fetching full transaction detail ---- */
+  if (isLoadingDetail) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50 bg-black/50"
+          onClick={onClose}
+        />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+          transition={{ duration: 0.2 }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-900">
+            <div className="flex items-center justify-center py-12">
+              <Loader2 size={24} className="animate-spin text-indigo-500" />
+            </div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+
+  /* transaction was deleted while modal was open */
+  if (!transaction) return null;
+
+  return (
+    <AnimatePresence>
+      {/* backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
+        className="fixed inset-0 z-50 bg-black/50"
+        onClick={onClose}
+      />
+      {/* modal */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      >
+        <div
+          className="relative max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-900"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* header */}
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              Edit Transaction
+            </h2>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          {/* server error banner */}
+          <AnimatePresence>
+            {serverError && (
+              <motion.div
+                initial={{ opacity: 0, y: -8, height: 0 }}
+                animate={{ opacity: 1, y: 0, height: "auto" }}
+                exit={{ opacity: 0, y: -8, height: 0 }}
+                transition={{ duration: 0.25 }}
+                className="mb-6 overflow-hidden"
+              >
+                <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
+                  <AlertCircle size={16} className="flex-shrink-0" />
+                  <span className="flex-1">{serverError}</span>
+                  <button
+                    type="button"
+                    onClick={() => setServerError("")}
+                    className="flex-shrink-0 text-red-400 hover:text-red-600"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Type toggle */}
+            <div>
+              <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Type
+              </label>
+              <TypeToggle value={type} onChange={setType} />
+            </div>
+
+            {/* Title */}
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Title <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. Grocery shopping at Shwapno"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onBlur={() => handleBlur("title")}
+                className={`${inputBase} ${
+                  touched.title && errors.title ? inputError : inputNormal
+                }`}
+              />
+              {fieldError("title")}
+            </div>
+
+            {/* Amount + Date */}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {/* Amount */}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Amount <span className="text-red-500">*</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
+                    ৳
+                  </span>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    onBlur={() => handleBlur("amount")}
+                    className={`${inputBase} pl-8 ${
+                      touched.amount && errors.amount ? inputError : inputNormal
+                    }`}
+                  />
+                </div>
+                {fieldError("amount")}
+              </div>
+
+              {/* Date */}
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  onBlur={() => handleBlur("date")}
+                  className={`${inputBase} ${
+                    touched.date && errors.date ? inputError : inputNormal
+                  }`}
+                />
+                {fieldError("date")}
+              </div>
+            </div>
+
+            {/* Category */}
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Category <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={category}
+                onChange={(e) =>
+                  setCategory(e.target.value as TransactionCategory)
+                }
+                className={`${inputBase} ${inputNormal}`}
+              >
+                {CATEGORY_OPTIONS.filter((o) => o.value !== "auto").map(
+                  (opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ),
+                )}
+              </select>
+            </div>
+
+            {/* Short description */}
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Short Description
+              </label>
+              <input
+                type="text"
+                placeholder="Optional one-liner"
+                value={shortDescription}
+                onChange={(e) => setShortDescription(e.target.value)}
+                className={`${inputBase} ${inputNormal}`}
+              />
+            </div>
+
+            {/* Full description */}
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Full Description
+              </label>
+              <textarea
+                rows={3}
+                placeholder="Add more detail about this transaction..."
+                value={fullDescription}
+                onChange={(e) => setFullDescription(e.target.value)}
+                className={`${inputBase} resize-none ${inputNormal}`}
+              />
+            </div>
+
+            {/* Image URL */}
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                Receipt Image URL
+              </label>
+              <div className="relative">
+                <ImageIcon
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
+                <input
+                  type="url"
+                  placeholder="https://..."
+                  value={imageUrl}
+                  onChange={(e) => {
+                    setImageUrl(e.target.value);
+                    setImageLoaded(false);
+                    setImageError(false);
+                  }}
+                  className={`${inputBase} pl-10 ${inputNormal}`}
+                />
+              </div>
+              {/* live preview thumbnail */}
+              {imageUrl && (
+                <div className="mt-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageUrl}
+                    alt="Receipt preview"
+                    className="h-24 w-24 rounded-lg object-cover ring-1 ring-slate-200 dark:ring-slate-700"
+                    onLoad={() => { setImageLoaded(true); setImageError(false); }}
+                    onError={() => { setImageLoaded(false); setImageError(true); }}
+                  />
+                  {imageError && !imageLoaded && (
+                    <p className="mt-1 text-xs text-red-500">
+                      Could not load image
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* footer */}
+            <div className="flex justify-end gap-3 border-t border-slate-100 pt-5 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={onClose}
+                disabled={isSubmitting}
+                className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </button>
+            </div>
+          </form>
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main Page                                                          */
 /* ------------------------------------------------------------------ */
 
@@ -510,6 +984,11 @@ export default function ManageTransactionsPage() {
       return next;
     });
   };
+
+  /* ---- edit modal ---- */
+  const [editingTransactionId, setEditingTransactionId] = useState<
+    string | null
+  >(null);
 
   /* ---- single delete ---- */
   const [deleteTarget, setDeleteTarget] = useState<Transaction | null>(null);
@@ -615,12 +1094,12 @@ export default function ManageTransactionsPage() {
             className={selectClass}
           >
             <option value="all">All Categories</option>
-            <option value="food">Food</option>
-            <option value="transport">Transport</option>
-            <option value="bills">Bills</option>
-            <option value="shopping">Shopping</option>
-            <option value="entertainment">Entertainment</option>
-            <option value="other">Other</option>
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Bills">Bills</option>
+            <option value="Shopping">Shopping</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Other">Other</option>
           </select>
         </div>
 
@@ -781,14 +1260,14 @@ export default function ManageTransactionsPage() {
                                 {t.title}
                               </span>
                             </td>
-                            <td className="px-4 py-3">
+                            <td className="px-4 py-3 z-50">
                               <CategoryCell
                                 transaction={t}
                                 onSaved={() => {}}
                               />
                             </td>
                             <td
-                              className={`px-4 py-3 font-semibold ${
+                              className={`px-4 z-50 py-3 font-semibold ${
                                 t.type === "income"
                                   ? "text-emerald-600 dark:text-emerald-400"
                                   : "text-rose-600 dark:text-rose-400"
@@ -802,6 +1281,13 @@ export default function ManageTransactionsPage() {
                             </td>
                             <td className="px-4 py-3">
                               <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => setEditingTransactionId(t._id)}
+                                  className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
+                                  title="Edit"
+                                >
+                                  <Pencil size={16} />
+                                </button>
                                 <Link
                                   href={`/transactions/${t._id}`}
                                   className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-slate-100 hover:text-indigo-600 dark:hover:bg-slate-800 dark:hover:text-indigo-400"
@@ -889,6 +1375,13 @@ export default function ManageTransactionsPage() {
 
                             {/* actions */}
                             <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3 dark:border-slate-800">
+                              <button
+                                onClick={() => setEditingTransactionId(t._id)}
+                                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
+                              >
+                                <Pencil size={14} />
+                                Edit
+                              </button>
                               <Link
                                 href={`/transactions/${t._id}`}
                                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
@@ -926,6 +1419,17 @@ export default function ManageTransactionsPage() {
           />
         )}
       </div>
+
+      {/* ---------------------------------------------------------------- */}
+      {/*  Edit Transaction modal                                          */}
+      {/* ---------------------------------------------------------------- */}
+      {editingTransactionId && (
+        <EditTransactionModal
+          key={editingTransactionId}
+          transactionId={editingTransactionId}
+          onClose={() => setEditingTransactionId(null)}
+        />
+      )}
 
       {/* ---------------------------------------------------------------- */}
       {/*  Single delete modal                                             */}

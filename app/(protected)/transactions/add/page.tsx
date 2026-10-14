@@ -264,9 +264,11 @@ export default function AddTransactionPage() {
       imageUrl: imageUrl.trim(),
     };
 
+   
+
     try {
       /* ---- RTK Query mutation — swap this block for useAddTransactionMutation ---- */
-      await addTransaction({
+    const res =  await addTransaction({
         title: title.trim(),
         amount: Number(amount),
         type,
@@ -276,6 +278,9 @@ export default function AddTransactionPage() {
         description: description.trim(),
         imageUrl: imageUrl.trim(),
       }).unwrap();
+
+
+
 
       setIsSuccess(true);
       setTimeout(() => router.push("/transactions"), 800);

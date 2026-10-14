@@ -4,15 +4,35 @@ import React from "react";
 import { Users, DollarSign, TrendingUp, Star } from "lucide-react";
 
 const stats = [
-  { name: "Active Users", value: "50K+", icon: Users, color: "text-indigo-600 dark:text-indigo-400" },
-  { name: "Transactions Tracked", value: "$2B+", icon: DollarSign, color: "text-emerald-600 dark:text-emerald-400" },
-  { name: "Average Savings", value: "23%", icon: TrendingUp, color: "text-purple-600 dark:text-purple-400" },
-  { name: "User Rating", value: "4.9/5", icon: Star, color: "text-amber-600 dark:text-amber-400" },
+  {
+    name: "Active Users",
+    value: "50K+",
+    icon: Users,
+    color: "text-indigo-600 dark:text-indigo-400",
+  },
+  {
+    name: "Transactions Tracked",
+    value: "$2B+",
+    icon: DollarSign,
+    color: "text-emerald-600 dark:text-emerald-400",
+  },
+  {
+    name: "Average Savings",
+    value: "23%",
+    icon: TrendingUp,
+    color: "text-purple-600 dark:text-purple-400",
+  },
+  {
+    name: "User Rating",
+    value: "4.9/5",
+    icon: Star,
+    color: "text-amber-600 dark:text-amber-400",
+  },
 ];
 
 export default function Stats() {
   return (
-    <section className="bg-white py-24 dark:bg-black">
+    <section className="bg-[#e8f6f5] py-24 dark:bg-black">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           {stats.map((stat) => (

@@ -138,7 +138,7 @@ export default function FAQ() {
   };
 
   return (
-    <section className="bg-slate-50 py-20 dark:bg-slate-950">
+    <section className="bg-[#d8f0ee] py-20 dark:bg-slate-950">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:gap-16">
           {/* ------------------------------------------------------------ */}

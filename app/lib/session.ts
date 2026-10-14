@@ -15,7 +15,7 @@ export interface SessionUser {
 
 export function useClientSession() {
   const { data: session, isPending, error } = authClient.useSession();
-
+  
   return {
     session,
     user: session?.user as SessionUser | undefined,

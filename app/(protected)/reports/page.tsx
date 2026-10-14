@@ -11,13 +11,8 @@ import {
   ArrowRight,
   Upload,
 } from "lucide-react";
-import { Skeleton } from "@heroui/react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-} from "recharts";
+import { Button, Skeleton } from "@heroui/react";
+import { PieChart, Pie, Cell, ResponsiveContainer } from "recharts";
 import { useGetDashboardSummaryQuery } from "@/store/api/transactionApi";
 import { useGetLatestReportQuery } from "@/store/api/aiApi";
 import { formatCurrency } from "@/lib/formatters";
@@ -47,7 +42,7 @@ function getCategoryColor(category: string): string {
 
 function ReportsSkeleton() {
   return (
-    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8 container mx-auto">
       <Skeleton className="h-8 w-48 rounded-lg" />
       <Skeleton className="h-4 w-64 rounded-lg" />
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -118,14 +113,28 @@ export default function ReportsPage() {
         className="mx-auto max-w-5xl space-y-8 p-4 sm:p-6 lg:p-8"
       >
         {/* ====== Header ====== */}
-        <motion.div variants={fadeUp}>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-            Reports
-          </h1>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-            Financial overview and AI-powered insights
-          </p>
-        </motion.div>
+        <div className="flex justify-between items-center ">
+          <motion.div variants={fadeUp}>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              Reports
+            </h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+              Financial overview and AI-powered insights
+            </p>
+          </motion.div>
+          <div>
+            <Link href={"/reports/upload"}>
+              <Button
+                className={
+                  "hover:bg-purple-500/20 px-4 py-2 rounded-xl transition-all duration-300 cursor-pointer"
+                }
+              >
+                {" "}
+                Upload Report
+              </Button>
+            </Link>
+          </div>
+        </div>
 
         {/* ====== Financial Summary KPIs ====== */}
         <motion.div

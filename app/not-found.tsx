@@ -1,9 +1,7 @@
 "use client";
-
-import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Home, ArrowLeft, Search, HelpCircle, Compass } from "lucide-react";
+import { Home, HelpCircle, Compass } from "lucide-react";
 import { Card, Button, Input } from "@heroui/react";
 
 const HELPFUL_LINKS = [

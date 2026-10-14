@@ -13,7 +13,6 @@ import {
   Film,
   MoreHorizontal,
   ArrowUpDown,
-  Calendar,
   Tag,
   X,
   FileText,
@@ -48,12 +47,12 @@ const PAGE_SIZE = 12;
 
 const CATEGORY_OPTIONS = [
   { value: "all", label: "All Categories" },
-  { value: "food", label: "Food" },
-  { value: "transport", label: "Transport" },
-  { value: "bills", label: "Bills" },
-  { value: "shopping", label: "Shopping" },
-  { value: "entertainment", label: "Entertainment" },
-  { value: "other", label: "Other" },
+  { value: "Food", label: "Food" },
+  { value: "Transport", label: "Transport" },
+  { value: "Bills", label: "Bills" },
+  { value: "Shopping", label: "Shopping" },
+  { value: "Entertainment", label: "Entertainment" },
+  { value: "Other", label: "Other" },
 ] as const;
 
 const DATE_RANGE_OPTIONS = [
@@ -182,7 +181,7 @@ function TransactionCard({
   transaction: Transaction;
   index: number;
 }) {
-  const cat = CATEGORY_MAP[transaction.category] ?? CATEGORY_MAP.other;
+  const cat = CATEGORY_MAP[transaction.category.toLocaleLowerCase() as TransactionCategory] ?? CATEGORY_MAP.other;
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -346,6 +345,9 @@ export default function TransactionsPage() {
   const [dateRange, setDateRange] = useState<DateRange>("all");
   const [sort, setSort] = useState<SortOption>("newest");
   const [page, setPage] = useState(1);
+
+
+
 
   /* debounce search 400ms */
   const debouncedSearch = useDebounce(searchInput, 400);

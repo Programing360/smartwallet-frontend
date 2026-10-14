@@ -244,8 +244,7 @@ export default function BlogDetailPage() {
     isError,
   } = useGetBlogBySlugQuery(slug, { skip: !slug });
 
-  // console.log(blog);
-
+ 
   const { data: related = [] } = useGetRelatedBlogsQuery(slug, {
     skip: !slug,
   });

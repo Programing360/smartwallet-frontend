@@ -300,7 +300,7 @@ export default function DashboardPage() {
 
   // Fallback safely in case your backend sends transactions length check differently 
   // const hasTransactions = summary?.hasTransactions ?? (summary.recentTransactions?.length > 0);
-  // console.log(hasTransactions);
+ 
   // if (!hasTransactions) return <EmptyState />;
 
   const greeting = getGreeting();

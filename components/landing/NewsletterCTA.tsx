@@ -40,7 +40,7 @@ export default function NewsletterCTA() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm((prev) => ({ ...prev, email: e.target.value, error: "" }));
     },
-    []
+    [],
   );
 
   const handleSubmit = useCallback(
@@ -62,7 +62,7 @@ export default function NewsletterCTA() {
 
       setForm((prev) => ({ ...prev, status: "success" }));
     },
-    [form.email]
+    [form.email],
   );
 
   /* ================================================================= */
@@ -70,13 +70,13 @@ export default function NewsletterCTA() {
   /* ================================================================= */
 
   return (
-    <section className="px-4 py-16 sm:px-6 lg:px-8">
+    <section className="px-4 py-16 sm:px-6 lg:px-8 bg-[#e8f6f5]">
       <motion.div
         initial={{ opacity: 0, y: 32 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="mx-auto max-w-6xl overflow-hidden rounded-2xl bg-indigo-600 dark:bg-indigo-700"
+        className="mx-auto max-w-6xl overflow-hidden rounded-2xl bg-linear-to-br from-[#17b094] to-[#338ce0] dark:bg-indigo-700"
       >
         <div className="grid items-center gap-10 px-8 py-14 sm:px-12 md:grid-cols-2 md:gap-12 lg:px-16">
           {/* ------------------------------------------------------------ */}
@@ -84,7 +84,7 @@ export default function NewsletterCTA() {
           {/* ------------------------------------------------------------ */}
           <div className="max-w-lg">
             <h2 className="text-3xl font-bold leading-tight text-white sm:text-4xl">
-              Start Making Smarter Money Decisions&nbsp;Today
+              Start Making Smarter Money Decisions Today
             </h2>
             <p className="mt-4 text-base leading-relaxed text-indigo-100 sm:text-lg">
               Join thousands of users who track, budget, and save smarter with
@@ -92,7 +92,10 @@ export default function NewsletterCTA() {
             </p>
 
             <div className="mt-8 flex flex-wrap items-center gap-4">
-              <motion.div whileHover={{ scale: 1.03 }} transition={{ duration: 0.15, ease: "easeOut" }}>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+              >
                 <Link
                   href="/register"
                   className="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-indigo-600 shadow-lg transition-colors hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
@@ -102,7 +105,10 @@ export default function NewsletterCTA() {
                 </Link>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.03 }} transition={{ duration: 0.15, ease: "easeOut" }}>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                transition={{ duration: 0.15, ease: "easeOut" }}
+              >
                 <Link
                   href="/login"
                   className="inline-flex items-center gap-2 rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:border-white/60 hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-600"
@@ -172,7 +178,10 @@ export default function NewsletterCTA() {
                       />
                     </div>
 
-                    <motion.div whileHover={{ scale: 1.03 }} transition={{ duration: 0.15, ease: "easeOut" }}>
+                    <motion.div
+                      whileHover={{ scale: 1.03 }}
+                      transition={{ duration: 0.15, ease: "easeOut" }}
+                    >
                       <button
                         type="submit"
                         disabled={form.status === "loading"}

@@ -333,7 +333,7 @@ function CopyButton({ text }: { text: string }) {
 /* ------------------------------------------------------------------ */
 
 function RelatedCard({ transaction }: { transaction: Transaction }) {
-  const cat = CATEGORY_MAP[transaction.category] ?? CATEGORY_MAP.other;
+  const cat = CATEGORY_MAP[transaction.category.toLocaleLowerCase() as TransactionCategory] ?? CATEGORY_MAP.other;
   const isIncome = transaction.type === "income";
 
   return (
@@ -397,7 +397,7 @@ export default function TransactionDetailPage() {
     { category: tx?.category ?? "", excludeId: id },
     { skip: !tx }
   );
-
+ 
   /* ---- AOS init — remove this useEffect if AOS is already initialised globally in the root layout ---- */
   useEffect(() => {
     AOS.init({
@@ -413,14 +413,14 @@ export default function TransactionDetailPage() {
   /* ---- error / not-found state ---- */
   if (isError || !tx) return <TransactionNotFound />;
 
-  const cat = CATEGORY_MAP[tx.category] ?? CATEGORY_MAP.other;
+  const cat = CATEGORY_MAP[tx.category.toLocaleLowerCase() as TransactionCategory] ?? CATEGORY_MAP.other;
   const catLarge =
-    CATEGORY_MAP_LARGE[tx.category] ?? CATEGORY_MAP_LARGE.other;
+    CATEGORY_MAP_LARGE[tx.category.toLocaleLowerCase() as TransactionCategory] ?? CATEGORY_MAP_LARGE.other;
   const isIncome = tx.type === "income";
   const displayDescription =
     tx.fullDescription || tx.description || "No description provided.";
   const insight =
-    AI_INSIGHTS[tx.category] ??
+    AI_INSIGHTS[tx.category.toLocaleLowerCase() as TransactionCategory] ??
     "Transaction has been recorded. Continue tracking for AI-powered insights.";
 
   return (
